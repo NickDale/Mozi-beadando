@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.SeparatorMenuItem?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<VBox prefHeight="400.0" prefWidth="640.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="hu.nje.mozifxml.MainController">
+    <children>
+        <MenuBar VBox.vgrow="NEVER">
+            <menus>
+                <Menu mnemonicParsing="false" text="Adatbázis">
+                    <items>
+                        <MenuItem mnemonicParsing="false" onAction="#dbReadMenuItem" text="Olvas" />
+                        <MenuItem mnemonicParsing="false" onAction="#dbReadMenuItem2" text="Olvas2" />
+                        <SeparatorMenuItem mnemonicParsing="false" />
+                        <MenuItem fx:id="dbWriteMenuItem" mnemonicParsing="false" text="Ír" />
+                        <MenuItem fx:id="dbEditMenuItem" mnemonicParsing="false" text="Módosít" />
+                        <MenuItem fx:id="dbDeleteMenuItem" mnemonicParsing="false" text="Töröl" />
+                        <SeparatorMenuItem mnemonicParsing="false" />
+                        <MenuItem fx:id="exitMenuItem" mnemonicParsing="false" onAction="#onClickExit" text="Kilépés" />
+                    </items>
+                </Menu>
+                <Menu mnemonicParsing="false" text="SOAP kliens">
+                    <items>
+                        <MenuItem mnemonicParsing="false" text="Letölt" />
+                        <MenuItem mnemonicParsing="false" text="Letölt2" />
+                        <MenuItem mnemonicParsing="false" text="Grafikon" />
+                    </items>
+                </Menu>
+                <Menu mnemonicParsing="false" text="Párhuzamos">
+                </Menu>
+                <Menu mnemonicParsing="false" text="Forex">
+                    <items>
+                        <MenuItem mnemonicParsing="false" text="About MyHelloApp" />
+                    </items>
+                </Menu>
+            </menus>
+        </MenuBar>
+        <AnchorPane maxHeight="-1.0" maxWidth="-1.0" prefHeight="-1.0" prefWidth="-1.0" VBox.vgrow="ALWAYS">
+            <children>
+                <Label alignment="CENTER" layoutX="155.0" layoutY="177.0" style="&#10;" text="Drag components from Library here…" textAlignment="CENTER" textFill="#9f9f9f" wrapText="false">
+                    <font>
+                        <Font size="18.0" />
+                    </font>
+                </Label>
+            </children>
+        </AnchorPane>
+    </children>
+</VBox>
