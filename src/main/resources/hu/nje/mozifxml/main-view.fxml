@@ -36,7 +36,12 @@
                 </Menu>
                 <Menu mnemonicParsing="false" text="Forex">
                     <items>
-                        <MenuItem mnemonicParsing="false" text="About MyHelloApp" />
+                        <MenuItem mnemonicParsing="false" text="Számlainformációk" />
+                        <MenuItem mnemonicParsing="false" text="Aktuális árak" />
+                        <MenuItem mnemonicParsing="false" text="Historikus árak" />
+                        <MenuItem mnemonicParsing="false" text="Pozíció nyitás" />
+                        <MenuItem mnemonicParsing="false" text="Pozíció zárás" />
+                        <MenuItem mnemonicParsing="false" text="Nyitott pozíciók" />
                     </items>
                 </Menu>
             </menus>

@@ -1,4 +1,4 @@
-package hu.nje.mozifxml.connection;
+package hu.nje.mozifxml.db;
 
 
 import java.sql.Connection;
