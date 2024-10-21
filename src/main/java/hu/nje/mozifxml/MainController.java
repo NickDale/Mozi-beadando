@@ -8,7 +8,7 @@ public class MainController {
     @FXML
     private Label welcomeText;
 
-   private final MovieService movieService = new MovieService();
+   private final MovieService movieService = MovieService.instanceOf();
 
     @FXML
     protected void onClickExit() {
@@ -17,7 +17,7 @@ public class MainController {
 
     @FXML
     protected void dbReadMenuItem(){
-        movieService.createUser("","");
+        //movieService.createUser("","");
     }
 
     @FXML
