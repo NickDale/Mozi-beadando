@@ -1,16 +1,10 @@
-package hu.nje.mozifxml.db;
+package hu.nje.mozifxml.db.service;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityManagerFactory;
-import jakarta.persistence.Persistence;
-
-public class MovieService {
+public class MovieService extends AbstractService {
 
     private static MovieService instance;
-    private final EntityManager em;
+
     private MovieService() {
-        EntityManagerFactory myPersistenceUnit = Persistence.createEntityManagerFactory("myPersistenceUnit");
-        this.em = myPersistenceUnit.createEntityManager();
     }
 
     public static MovieService instanceOf() {

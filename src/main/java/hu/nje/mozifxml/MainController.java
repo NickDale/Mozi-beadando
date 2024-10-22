@@ -1,6 +1,6 @@
 package hu.nje.mozifxml;
 
-import hu.nje.mozifxml.db.MovieService;
+import hu.nje.mozifxml.db.service.MovieService;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 
