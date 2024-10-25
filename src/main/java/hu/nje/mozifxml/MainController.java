@@ -1,14 +1,13 @@
 package hu.nje.mozifxml;
 
-import hu.nje.mozifxml.db.service.MovieService;
+import hu.nje.mozifxml.db.service.PerformanceService;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 
 public class MainController {
+    private final PerformanceService performanceService = new PerformanceService();
     @FXML
     private Label welcomeText;
-
-   private final MovieService movieService = MovieService.instanceOf();
 
     @FXML
     protected void onClickExit() {
@@ -16,12 +15,12 @@ public class MainController {
     }
 
     @FXML
-    protected void dbReadMenuItem(){
-        //movieService.createUser("","");
+    protected void dbReadMenuItem() {
+        performanceService.listPerformances();
     }
 
     @FXML
-    protected void dbReadMenuItem2(){
-
+    protected void dbReadMenuItem2() {
+        performanceService.listPerformancesByFilter("dsd", 1L, true);
     }
 }

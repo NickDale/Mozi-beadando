@@ -1,18 +1,14 @@
 package hu.nje.mozifxml.db.service;
 
-import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.Persistence;
 
-public abstract class AbstractService {
-    protected final EntityManager em;
+abstract class AbstractService {
+
+    public static final String LIKE_PER_CENT = "%";
+    protected final EntityManagerFactory entityManagerFactory;
 
     AbstractService() {
-        EntityManagerFactory myPersistenceUnit = Persistence.createEntityManagerFactory("myPersistenceUnit");
-        this.em = myPersistenceUnit.createEntityManager();
-    }
-
-    public EntityManager getEntityManager() {
-        return em;
+        this.entityManagerFactory = Persistence.createEntityManagerFactory("myPersistenceUnit");
     }
 }
