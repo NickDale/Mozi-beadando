@@ -1,10 +1,9 @@
-package hu.nje.mozifxml.db.entities;
+package hu.nje.mozifxml.entities;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.NamedQueries;
 import jakarta.persistence.Table;
 import org.hibernate.annotations.NamedQuery;
 
@@ -14,7 +13,7 @@ import java.util.Objects;
 @Table(name = "eloadas")
 @Entity
 
-@NamedQuery(name = Performance.FIND_ALL,query = "SELECT p From Performance p")
+@NamedQuery(name = Performance.FIND_ALL, query = "SELECT p From Performance p")
 public class Performance extends AbstractEntity {
     public static final String FIND_ALL = "Performance.findAll";
 

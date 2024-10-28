@@ -1,6 +1,10 @@
-package hu.nje.mozifxml.db.service;
+package hu.nje.mozifxml.service;
 
-import hu.nje.mozifxml.db.entities.Performance;
+import hu.nje.mozifxml.controller.model.MoviePerformance;
+import hu.nje.mozifxml.entities.Cinema_;
+import hu.nje.mozifxml.entities.Movie_;
+import hu.nje.mozifxml.entities.Performance;
+import hu.nje.mozifxml.entities.Performance_;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.CriteriaBuilder;
@@ -28,13 +32,18 @@ public class PerformanceService extends AbstractService {
                 if (useLikeForCinemaName) {
                     predicates.add(
                             cb.like(
-                                    cb.lower(performance.get("cinema").get("name")),
+                                    cb.lower(
+                                            performance.get(Performance_.CINEMA).get(Cinema_.NAME)
+                                    ),
                                     LIKE_PER_CENT + cinemaName.toLowerCase() + LIKE_PER_CENT)
                     );
                 } else {
                     predicates.add(
                             cb.equal(
-                                    cb.lower(performance.get("cinema").get("name")), cinemaName.toLowerCase()
+                                    cb.lower(
+                                            performance.get(Performance_.CINEMA).get(Cinema_.NAME)
+                                    ),
+                                    cinemaName.toLowerCase()
                             )
                     );
                 }
@@ -42,7 +51,7 @@ public class PerformanceService extends AbstractService {
 
             if (Objects.nonNull(filmId)) {
                 predicates.add(
-                        cb.equal(performance.get("movie").get("id"), filmId)
+                        cb.equal(performance.get(Performance_.MOVIE).get(Movie_.ID), filmId)
                 );
             }
             //TODO: add one more field
@@ -59,7 +68,22 @@ public class PerformanceService extends AbstractService {
         return Collections.emptyList();
     }
 
-    public List<?> listPerformances() {
+    public List<MoviePerformance> listPerformances() {
+        return listPerformancesFromDb().stream()
+                .map(p -> {
+                    MoviePerformance moviePerformance = new MoviePerformance();
+                    moviePerformance.setPerformanceId(p.getId());
+                    moviePerformance.setMovieTitle(p.getMovie().getTitle());
+                    moviePerformance.setCinemaName(p.getCinema().getName());
+                    moviePerformance.setCinemaCity(p.getCinema().getCity());
+                    moviePerformance.setPerformanceDate(p.getDate());
+                    moviePerformance.setNumberOfVisitor(p.getNumberOfViewers());
+                    moviePerformance.setIncome(p.getIncome());
+                    return moviePerformance;
+                }).toList();
+    }
+
+    private List<Performance> listPerformancesFromDb() {
         try (EntityManager entityManager = this.entityManagerFactory.createEntityManager()) {
             return entityManager.createNamedQuery(Performance.FIND_ALL, Performance.class)
                     .setMaxResults(500)

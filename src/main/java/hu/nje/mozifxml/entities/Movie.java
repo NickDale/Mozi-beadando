@@ -1,4 +1,4 @@
-package hu.nje.mozifxml.db.entities;
+package hu.nje.mozifxml.entities;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

@@ -7,9 +7,13 @@ module hu.nje.mozifxml {
     requires org.slf4j;
     requires jakarta.persistence;
     requires org.hibernate.orm.core;
+    requires jakarta.annotation;
 
     opens hu.nje.mozifxml to javafx.fxml;
-    opens hu.nje.mozifxml.db.entities to org.hibernate.orm.core;
+    opens hu.nje.mozifxml.entities to org.hibernate.orm.core;
 
     exports hu.nje.mozifxml;
+    exports hu.nje.mozifxml.controller.model;
+    exports hu.nje.mozifxml.controller;
+    opens hu.nje.mozifxml.controller to javafx.fxml;
 }

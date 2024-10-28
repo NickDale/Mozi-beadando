@@ -18,7 +18,8 @@ public class MoziApplication extends Application {
         final Scene scene = new Scene(
                 FXMLLoader.load(
                         Objects.requireNonNull(MoziApplication.class.getResource("main-view.fxml"))
-                ), 600, 480);
+                )
+        );
         stage.setTitle("Mozi - Java előadás beadandó");
         stage.resizableProperty().setValue(Boolean.FALSE);
         stage.setScene(scene);

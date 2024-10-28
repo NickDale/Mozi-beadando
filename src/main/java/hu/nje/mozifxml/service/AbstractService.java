@@ -1,4 +1,4 @@
-package hu.nje.mozifxml.db.service;
+package hu.nje.mozifxml.service;
 
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.Persistence;
