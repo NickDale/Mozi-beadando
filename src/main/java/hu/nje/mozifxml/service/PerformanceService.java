@@ -1,12 +1,12 @@
 package hu.nje.mozifxml.service;
 
+import hu.nje.mozifxml.controller.model.MovieFilter;
 import hu.nje.mozifxml.controller.model.MoviePerformance;
 import hu.nje.mozifxml.entities.Cinema_;
 import hu.nje.mozifxml.entities.Movie_;
 import hu.nje.mozifxml.entities.Performance;
 import hu.nje.mozifxml.entities.Performance_;
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
@@ -16,56 +16,92 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Function;
 
 public class PerformanceService extends AbstractService {
 
-    public List<Performance> listPerformancesByFilter(final String cinemaName,
-                                                      final Long filmId,
-                                                      final boolean useLikeForCinemaName) {
+    private final Function<Performance, MoviePerformance> moviePerformanceMapper = p -> {
+        MoviePerformance moviePerformance = new MoviePerformance();
+        moviePerformance.setPerformanceId(p.getId());
+        moviePerformance.setMovieTitle(p.getMovie().getTitle());
+        moviePerformance.setCinemaName(p.getCinema().getName());
+        moviePerformance.setCinemaCity(p.getCinema().getCity());
+        moviePerformance.setPerformanceDate(p.getDate());
+        moviePerformance.setNumberOfVisitor(p.getNumberOfViewers());
+        moviePerformance.setIncome(p.getIncome());
+        return moviePerformance;
+    };
+
+    public List<MoviePerformance> listPerformancesByFilter(MovieFilter movieFilter) {
+        return this.listPerformancesByFilter2(movieFilter)
+                .stream()
+                .map(moviePerformanceMapper)
+                .toList();
+    }
+
+    private List<Performance> listPerformancesByFilter2(MovieFilter movieFilter) {
         try (EntityManager entityManager = entityManagerFactory.createEntityManager()) {
             final CriteriaBuilder cb = entityManager.getCriteriaBuilder();
             final CriteriaQuery<Performance> cq = cb.createQuery(Performance.class);
-            final Root<Performance> performance = cq.from(Performance.class);
+            final Root<Performance> root = cq.from(Performance.class);
             final List<Predicate> predicates = new ArrayList<>();
 
-            if (Objects.nonNull(cinemaName) && !cinemaName.trim().isEmpty()) {
-                if (useLikeForCinemaName) {
-                    predicates.add(
-                            cb.like(
-                                    cb.lower(
-                                            performance.get(Performance_.CINEMA).get(Cinema_.NAME)
-                                    ),
-                                    LIKE_PER_CENT + cinemaName.toLowerCase() + LIKE_PER_CENT)
-                    );
-                } else {
-                    predicates.add(
-                            cb.equal(
-                                    cb.lower(
-                                            performance.get(Performance_.CINEMA).get(Cinema_.NAME)
-                                    ),
-                                    cinemaName.toLowerCase()
-                            )
-                    );
-                }
-            }
-
-            if (Objects.nonNull(filmId)) {
+            if (Objects.nonNull(movieFilter.getMovieName()) && !movieFilter.getMovieName().trim().isEmpty()) {
                 predicates.add(
-                        cb.equal(performance.get(Performance_.MOVIE).get(Movie_.ID), filmId)
+                        this.createMovieTitleSearchPredicate(cb, root, movieFilter)
                 );
             }
-            //TODO: add one more field
+
+            if (Objects.nonNull(movieFilter.getCinemaId())) {
+                predicates.add(
+                        cb.equal(root.get(Performance_.CINEMA).get(Cinema_.ID), movieFilter.getCinemaId())
+                );
+            }
 
             cq.where(predicates.toArray(Predicate[]::new));
+            cq.orderBy(
+                    cb.desc(
+                            root.get(Performance_.MOVIE).get(Movie_.TITLE)
+                    ),
+                    cb.asc(root.get(Performance_.DATE))
+            );
 
-            TypedQuery<Performance> query = entityManager.createQuery(cq);
-            return query.getResultList();
-
+            return entityManager.createQuery(cq).getResultList();
         } catch (Exception ex) {
             ex.printStackTrace();
         }
-
         return Collections.emptyList();
+    }
+
+    private Predicate createMovieTitleSearchPredicate(final CriteriaBuilder cb,
+                                                      final Root<Performance> root,
+                                                      MovieFilter movieFilter) {
+        if (movieFilter.isUseLikeForMovieTitleSearch()) {
+            if (movieFilter.isCaseInsensitiveSearch()) {
+                return cb.like(
+                        cb.lower(
+                                root.get(Performance_.MOVIE).get(Movie_.TITLE)
+                        ),
+                        LIKE_PER_CENT + movieFilter.getMovieName().toLowerCase() + LIKE_PER_CENT
+                );
+            }
+            return cb.like(
+                    root.get(Performance_.MOVIE).get(Movie_.TITLE),
+                    LIKE_PER_CENT + movieFilter.getMovieName() + LIKE_PER_CENT
+            );
+        }
+        if (movieFilter.isCaseInsensitiveSearch()) {
+            return cb.equal(
+                    cb.lower(
+                            root.get(Performance_.MOVIE).get(Movie_.TITLE)
+                    ),
+                    movieFilter.getMovieName().toLowerCase()
+            );
+        }
+        return cb.equal(
+                root.get(Performance_.MOVIE).get(Movie_.TITLE),
+                movieFilter.getMovieName()
+        );
     }
 
     public List<MoviePerformance> listPerformances() {

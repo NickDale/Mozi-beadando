@@ -9,15 +9,16 @@
 <?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.RadioButton?>
 <?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.SeparatorMenuItem?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ToggleGroup?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.VBox?>
 
-<?import javafx.scene.control.ToggleGroup?>
 <VBox prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="hu.nje.mozifxml.controller.MainController">
     <children>
         <MenuBar VBox.vgrow="NEVER">
@@ -78,26 +79,30 @@
                                     <HBox prefHeight="46.0" prefWidth="432.0">
                                        <children>
                                           <Label prefHeight="38.0" prefWidth="118.0" text="Film cím" />
-                                          <TextField prefHeight="35.0" prefWidth="230.0" />
+                                          <TextField fx:id="movieTitleSearchText" prefHeight="35.0" prefWidth="230.0" />
                                        </children>
                                     </HBox>
-                                    <HBox prefHeight="36.0" prefWidth="413.0">
+                                    <HBox prefHeight="36.0" prefWidth="402.0">
                                        <children>
                                           <Label prefHeight="36.0" prefWidth="119.0" text="Keresés típusa" />
-                                          <fx:define><ToggleGroup fx:id="radioGroup"/></fx:define>
-                                                <RadioButton mnemonicParsing="false" toggleGroup="$radioGroup" text="Részleges" />
-                                                <RadioButton mnemonicParsing="false" toggleGroup="$radioGroup" text="Pontos" />
+                                          <Separator orientation="VERTICAL" prefHeight="36.0" prefWidth="40.0" visible="false" />
+                                          <fx:define><ToggleGroup fx:id="radioGroup" /></fx:define>
+                                                <RadioButton mnemonicParsing="false" selected="true" text="Pontos" toggleGroup="$radioGroup"/>
+                                                <RadioButton fx:id="likeSearch" text="Részleges" toggleGroup="$radioGroup" />
+<!--                                             <toggleGroup>-->
+<!--                                                <ToggleGroup fx:id="radioGroup" />-->
+<!--                                             </toggleGroup></RadioButton>-->
                                        </children>
                                     </HBox>
                                     <HBox prefHeight="47.0" prefWidth="409.0">
                                        <children>
-                                          <Label prefHeight="38.0" prefWidth="116.0" text="Város" />
-                                          <ComboBox prefHeight="25.0" prefWidth="205.0" />
+                                          <Label prefHeight="38.0" prefWidth="116.0" text="Mozi" />
+                                          <ComboBox fx:id="cinemaCombobox" prefHeight="25.0" prefWidth="231.0" />
                                        </children>
                                     </HBox>
                                     <HBox prefHeight="35.0" prefWidth="412.0">
                                        <children>
-                                          <CheckBox mnemonicParsing="false" text="kis és nagy betük megkülönböztetése" />
+                                          <CheckBox fx:id="caseInsensitiveCheckbox" mnemonicParsing="false" text="kis és nagy betük megkülönböztetése" />
                                        </children>
                                     </HBox>
                                  </children>
@@ -108,7 +113,7 @@
                                     <HBox prefHeight="100.0" prefWidth="200.0" />
                                     <HBox prefHeight="100.0" prefWidth="200.0">
                                        <children>
-                                          <Button mnemonicParsing="false" prefHeight="46.0" prefWidth="99.0" text="Keresés" />
+                                          <Button mnemonicParsing="false" onAction="#searchPerformances" prefHeight="46.0" prefWidth="99.0" text="Keresés" />
                                        </children>
                                     </HBox>
                                     <HBox prefHeight="100.0" prefWidth="200.0" />
