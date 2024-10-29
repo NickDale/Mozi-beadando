@@ -1,9 +1,6 @@
 package hu.nje.mozifxml.controller.model;
 
-import hu.nje.mozifxml.entities.Performance;
-
 import java.time.LocalDate;
-
 
 public class MoviePerformance {
 

@@ -32,6 +32,18 @@ public class PerformanceService extends AbstractService {
         return moviePerformance;
     };
 
+    public List<MoviePerformance> listPerformances() {
+        try (EntityManager entityManager = this.entityManagerFactory.createEntityManager()) {
+            final List<Performance> resultList = entityManager.createNamedQuery(Performance.FIND_ALL, Performance.class)
+                    .getResultList();
+
+            return resultList.stream().map(moviePerformanceMapper).toList();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return Collections.emptyList();
+    }
+
     public List<MoviePerformance> listPerformancesByFilter(MovieFilter movieFilter) {
         return this.listPerformancesByFilter2(movieFilter)
                 .stream()
@@ -60,10 +72,10 @@ public class PerformanceService extends AbstractService {
 
             cq.where(predicates.toArray(Predicate[]::new));
             cq.orderBy(
-                    cb.desc(
+                    cb.asc(
                             root.get(Performance_.MOVIE).get(Movie_.TITLE)
                     ),
-                    cb.asc(root.get(Performance_.DATE))
+                    cb.desc(root.get(Performance_.DATE))
             );
 
             return entityManager.createQuery(cq).getResultList();
@@ -102,31 +114,5 @@ public class PerformanceService extends AbstractService {
                 root.get(Performance_.MOVIE).get(Movie_.TITLE),
                 movieFilter.getMovieName()
         );
-    }
-
-    public List<MoviePerformance> listPerformances() {
-        return listPerformancesFromDb().stream()
-                .map(p -> {
-                    MoviePerformance moviePerformance = new MoviePerformance();
-                    moviePerformance.setPerformanceId(p.getId());
-                    moviePerformance.setMovieTitle(p.getMovie().getTitle());
-                    moviePerformance.setCinemaName(p.getCinema().getName());
-                    moviePerformance.setCinemaCity(p.getCinema().getCity());
-                    moviePerformance.setPerformanceDate(p.getDate());
-                    moviePerformance.setNumberOfVisitor(p.getNumberOfViewers());
-                    moviePerformance.setIncome(p.getIncome());
-                    return moviePerformance;
-                }).toList();
-    }
-
-    private List<Performance> listPerformancesFromDb() {
-        try (EntityManager entityManager = this.entityManagerFactory.createEntityManager()) {
-            return entityManager.createNamedQuery(Performance.FIND_ALL, Performance.class)
-                    .setMaxResults(500)
-                    .getResultList();
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-        return Collections.emptyList();
     }
 }

@@ -10,7 +10,6 @@ import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.RadioButton;
@@ -38,9 +37,9 @@ public class MainController implements Initializable {
     @FXML
     private TextField movieTitleSearchText;
 
-    @FXML
-    private Button searchButton;
-
+    /**
+     * Kilépés menüpont
+     */
     @FXML
     protected void onClickExit() {
         System.exit(0);
@@ -73,11 +72,6 @@ public class MainController implements Initializable {
     public void initialize(URL url, ResourceBundle resourceBundle) {
     }
 
-    private void renderTableData(TableView<MoviePerformance> tableView) {
-        tableView.getColumns().clear();
-        tableView.getColumns().addAll(TableBuilder.createDbColumn());
-    }
-
     public void searchPerformances(ActionEvent actionEvent) {
         final MovieFilter movieFilter = new MovieFilter();
         SingleSelectionModel<Cinema> selectionModel = this.cinemaCombobox.getSelectionModel();
@@ -92,6 +86,11 @@ public class MainController implements Initializable {
             performanceTable_menu2.setItems(FXCollections.observableArrayList(performanceService.listPerformancesByFilter(movieFilter)));
             performanceTable_menu2.refresh();
         });
+    }
+
+    private void renderTableData(TableView<MoviePerformance> tableView) {
+        tableView.getColumns().clear();
+        tableView.getColumns().addAll(TableBuilder.createDbColumn());
     }
 
     private void clearSearchPerformances() {
