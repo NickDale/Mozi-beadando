@@ -8,7 +8,10 @@ import jakarta.persistence.Table;
 import org.hibernate.annotations.NamedQuery;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Objects;
+
+import static hu.nje.mozifxml.util.Constant.DATE_PATTERN;
 
 @Table(name = "eloadas")
 @Entity
@@ -112,5 +115,14 @@ public class Performance extends AbstractEntity {
     @Override
     public int hashCode() {
         return Objects.hash(id, movieId, movie, date, cinemaId, cinema, numberOfViewers, income);
+    }
+
+    @Override
+    public String toString() {
+        return this.movie.getTitle()
+                + " - "
+                + this.getCinema().getName()
+                + " - "
+                + this.date.format(DateTimeFormatter.ofPattern(DATE_PATTERN));
     }
 }
