@@ -3,6 +3,7 @@ package hu.nje.mozifxml.controller;
 import hu.nje.mozifxml.controller.model.MovieFilter;
 import hu.nje.mozifxml.controller.model.MoviePerformance;
 import hu.nje.mozifxml.entities.Cinema;
+import hu.nje.mozifxml.service.CinemaService;
 import hu.nje.mozifxml.service.PerformanceService;
 import hu.nje.mozifxml.util.TableBuilder;
 import javafx.application.Platform;
@@ -23,6 +24,7 @@ import java.util.ResourceBundle;
 
 public class MainController implements Initializable {
     private final PerformanceService performanceService = new PerformanceService();
+    private final CinemaService cinemaService = new CinemaService();
 
     @FXML
     private ScrollPane menu1ScrollPane, menu2ScrollPane;
@@ -65,6 +67,7 @@ public class MainController implements Initializable {
         menu2ScrollPane.setVisible(true);
 
         this.renderTableData(performanceTable_menu2);
+        cinemaCombobox.setItems(FXCollections.observableArrayList(cinemaService.listAllCinema()));
         clearSearchPerformances();
     }
 

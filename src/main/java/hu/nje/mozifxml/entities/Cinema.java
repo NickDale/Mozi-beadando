@@ -3,13 +3,17 @@ package hu.nje.mozifxml.entities;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
+import org.hibernate.annotations.NamedQuery;
 
 import java.util.Objects;
 
 @Table(name = "mozi")
 @Entity
 
+@NamedQuery(name = Cinema.FIND_ALL, query = "SELECT c From Cinema c ORDER BY c.name ASC,c.city DESC ")
 public class Cinema extends AbstractEntity {
+    public static final String FIND_ALL = "Cinema.findAll";
+
 
     @Column(name = "nev", nullable = false)
     private String name;
@@ -56,5 +60,10 @@ public class Cinema extends AbstractEntity {
     @Override
     public int hashCode() {
         return Objects.hash(id, name, city, maxCapacity);
+    }
+
+    @Override
+    public String toString() {
+        return name + " (" + city + ")";
     }
 }
