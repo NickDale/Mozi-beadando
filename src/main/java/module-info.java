@@ -8,6 +8,7 @@ module hu.nje.mozifxml {
     requires jakarta.persistence;
     requires org.hibernate.orm.core;
     requires jakarta.annotation;
+    requires jakarta.xml.bind;
 
     opens hu.nje.mozifxml to javafx.fxml;
     opens hu.nje.mozifxml.entities to org.hibernate.orm.core;

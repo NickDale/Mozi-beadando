@@ -28,9 +28,9 @@ import java.net.URL;
 import java.util.List;
 import java.util.ResourceBundle;
 
-import static hu.nje.mozifxml.util.Helper.onlyNumbersEventListener;
 import static hu.nje.mozifxml.util.Constant.NUMBER_REGEX;
 import static hu.nje.mozifxml.util.Constant.isNotEmpty;
+import static hu.nje.mozifxml.util.Helper.onlyNumbersEventListener;
 import static java.util.Objects.isNull;
 import static java.util.Optional.ofNullable;
 
@@ -120,13 +120,19 @@ public class MainController implements Initializable {
     public void dbEditMenuItem() {
         this.changeView(editMoviePanel);
 
-        cinemaComboBox.setItems(FXCollections.observableArrayList(cinemaService.listAllCinema()));
 
         this.editMovieCity.textProperty().addListener(stringChangeListener);
         this.editMovieName.textProperty().addListener(stringChangeListener);
         this.editMovieCapacity.textProperty().addListener(stringChangeListener);
 
         onlyNumbersEventListener(editMovieCapacity);
+        this.refreshCinemaCombo(cinemaComboBox);
+    }
+
+    private void refreshCinemaCombo(ComboBox<Cinema> comboBox) {
+        comboBox.setItems(
+                FXCollections.observableArrayList(cinemaService.listAllCinema())
+        );
     }
 
     /**
@@ -216,5 +222,25 @@ public class MainController implements Initializable {
         boolean isCapacityValid = editMovieCapacity.getText().matches(NUMBER_REGEX);
 
         editMovieBtn.setDisable(!(isModified && isNameValid && isCityValid && isCapacityValid));
+    }
+
+    public void editCinema(ActionEvent actionEvent) {
+        if (isNull(selectedCinema)) {
+            return;
+        }
+
+        selectedCinema.setCity(this.editMovieCity.getText());
+        selectedCinema.setName(this.editMovieName.getText());
+        selectedCinema.setMaxCapacity(Integer.parseInt(this.editMovieCapacity.getText()));
+        cinemaService.saveCinema(selectedCinema);
+        this.cleanCleanEditPage();
+    }
+
+    private void cleanCleanEditPage() {
+        List.of(this.editMovieCity,
+                this.editMovieName,
+                this.editMovieCapacity
+        ).forEach(f -> f.setText(null));
+        this.refreshCinemaCombo(cinemaComboBox);
     }
 }

@@ -88,14 +88,8 @@
                                           <Label prefHeight="36.0" prefWidth="119.0" text="Keresés típusa" />
                                           <Separator orientation="VERTICAL" prefHeight="36.0" prefWidth="40.0" visible="false" />
                                           <fx:define><ToggleGroup fx:id="radioGroup" /></fx:define>
-                                                <RadioButton mnemonicParsing="false" selected="true" text="Pontos">
-                                             <toggleGroup>
-                                                <ToggleGroup fx:id="radioGroup" />
-                                             </toggleGroup></RadioButton>
+                                                <RadioButton mnemonicParsing="false" selected="true" text="Pontos" toggleGroup="$radioGroup" />
                                                 <RadioButton fx:id="likeSearch" text="Részleges" toggleGroup="$radioGroup" />
-<!--                                             <toggleGroup>-->
-<!--                                                <ToggleGroup fx:id="radioGroup" />-->
-<!--                                             </toggleGroup></RadioButton>-->
                                        </children>
                                     </HBox>
                                     <HBox prefHeight="47.0" prefWidth="409.0">
@@ -188,7 +182,7 @@
                         <HBox prefHeight="100.0" prefWidth="200.0">
                            <children>
                               <Separator orientation="VERTICAL" prefHeight="100.0" prefWidth="215.0" visible="false" />
-                              <Button fx:id="editMovieBtn" mnemonicParsing="false" prefHeight="42.0" prefWidth="166.0" text="Módosítás" />
+                              <Button fx:id="editMovieBtn" mnemonicParsing="false" onAction="#editCinema" prefHeight="42.0" prefWidth="166.0" text="Módosítás" />
                            </children>
                         </HBox>
                      </children>

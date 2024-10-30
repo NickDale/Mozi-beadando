@@ -23,7 +23,7 @@ public class TableBuilder {
 
     public static List<TableColumn<MoviePerformance, ?>> createDbColumn() {
         TableColumn<MoviePerformance, Long> idCol = new TableColumn<>(COLUMN_ID);
-        idCol.setPrefWidth(35);
+        idCol.setPrefWidth(50);
         idCol.setStyle(TEXT_ALIGN_CENTER);
         idCol.setCellValueFactory(cellData ->
                 new SimpleLongProperty(cellData.getValue().getPerformanceId()).asObject()

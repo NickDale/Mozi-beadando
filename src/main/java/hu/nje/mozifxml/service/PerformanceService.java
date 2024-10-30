@@ -37,13 +37,7 @@ public class PerformanceService extends AbstractService {
     }
 
     public List<Performance> listPerformances() {
-        try (EntityManager entityManager = this.entityManagerFactory.createEntityManager()) {
-            return entityManager.createNamedQuery(Performance.FIND_ALL, Performance.class)
-                    .getResultList();
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-        return Collections.emptyList();
+        return super.findAll(Performance.FIND_ALL, Performance.class);
     }
 
     public List<MoviePerformance> listPerformancesByFilter(MovieFilter movieFilter) {
@@ -54,21 +48,7 @@ public class PerformanceService extends AbstractService {
     }
 
     public void deletePerformance(Performance performance) {
-        EntityManager entityManager = entityManagerFactory.createEntityManager();
-        try {
-            entityManager.getTransaction().begin();
-            if (!entityManager.contains(performance)) {
-                performance = entityManager.merge(performance);
-            }
-            entityManager.remove(performance);
-
-            entityManager.getTransaction().commit();
-        } catch (Exception e) {
-            entityManager.getTransaction().rollback();
-            e.printStackTrace();
-        } finally {
-            entityManager.clear();
-        }
+        super.delete(performance);
     }
 
     private List<Performance> listPerformancesByFilter2(MovieFilter movieFilter) {
