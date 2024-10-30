@@ -16,4 +16,6 @@ module hu.nje.mozifxml {
     exports hu.nje.mozifxml.controller.model;
     exports hu.nje.mozifxml.controller;
     opens hu.nje.mozifxml.controller to javafx.fxml;
+    exports hu.nje.mozifxml.util;
+    opens hu.nje.mozifxml.util to javafx.fxml;
 }

@@ -8,6 +8,7 @@ import hu.nje.mozifxml.service.CinemaService;
 import hu.nje.mozifxml.service.PerformanceService;
 import hu.nje.mozifxml.util.TableBuilder;
 import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -21,10 +22,16 @@ import javafx.scene.control.SingleSelectionModel;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.Region;
 
 import java.net.URL;
+import java.util.List;
 import java.util.ResourceBundle;
 
+import static hu.nje.mozifxml.util.Helper.onlyNumbersEventListener;
+import static hu.nje.mozifxml.util.Constant.NUMBER_REGEX;
+import static hu.nje.mozifxml.util.Constant.isNotEmpty;
+import static java.util.Objects.isNull;
 import static java.util.Optional.ofNullable;
 
 public class MainController implements Initializable {
@@ -50,7 +57,10 @@ public class MainController implements Initializable {
     private TextField movieTitleSearchText, editMovieCapacity, editMovieCity, editMovieName;
 
     @FXML
-    private Button deletePerformanceBtn;
+    private Button deletePerformanceBtn, editMovieBtn;
+
+    private Cinema selectedCinema;
+    private final ChangeListener<String> stringChangeListener = (observable, oldValue, newValue) -> validateForm();
 
     /**
      * Kilépés menüpont
@@ -65,13 +75,21 @@ public class MainController implements Initializable {
      */
     @FXML
     protected void dbReadMenuItem() {
-        menu1ScrollPane.setVisible(true);
-        menu2ScrollPane.setVisible(false);
-        deletePerformancePane.setVisible(false);
-        editMoviePanel.setVisible(false);
+        this.changeView(menu1ScrollPane);
 
         this.renderTableData(performanceTable_menu1);
         performanceTable_menu1.setItems(FXCollections.observableArrayList(performanceService.listMoviePerformances()));
+    }
+
+    private <T extends Region> void changeView(final T selectedPane) {
+        this.hideAllPane();
+        selectedPane.setVisible(true);
+    }
+
+    private void hideAllPane() {
+        List.of(deletePerformancePane, editMoviePanel)
+                .forEach(p -> p.setVisible(false));
+        List.of(menu1ScrollPane, menu2ScrollPane).forEach(p -> p.setVisible(false));
     }
 
     /**
@@ -79,36 +97,44 @@ public class MainController implements Initializable {
      */
     @FXML
     protected void dbReadMenuItem2() {
-        menu1ScrollPane.setVisible(false);
-        menu2ScrollPane.setVisible(true);
-        deletePerformancePane.setVisible(false);
-        editMoviePanel.setVisible(false);
+        this.changeView(menu2ScrollPane);
 
         this.renderTableData(performanceTable_menu2);
         cinemaCombobox.setItems(FXCollections.observableArrayList(cinemaService.listAllCinema()));
         clearSearchPerformances();
     }
 
+    /**
+     * 1. feladat - Asatbázis menü - Ír almenü
+     */
     @FXML
     public void dbCreateMenuItem() {
+        this.changeView(createMoviePanel);
     }
+
+    /**
+     * 1. feladat - Asatbázis menü - Módosít almenü
+     */
 
     @FXML
     public void dbEditMenuItem() {
-        menu1ScrollPane.setVisible(false);
-        menu2ScrollPane.setVisible(false);
-        deletePerformancePane.setVisible(false);
-        editMoviePanel.setVisible(true);
+        this.changeView(editMoviePanel);
 
         cinemaComboBox.setItems(FXCollections.observableArrayList(cinemaService.listAllCinema()));
+
+        this.editMovieCity.textProperty().addListener(stringChangeListener);
+        this.editMovieName.textProperty().addListener(stringChangeListener);
+        this.editMovieCapacity.textProperty().addListener(stringChangeListener);
+
+        onlyNumbersEventListener(editMovieCapacity);
     }
 
+    /**
+     * 1. feladat - Asatbázis menü - Töröl almenü
+     */
     @FXML
     public void dbDeleteMenuItem() {
-        menu1ScrollPane.setVisible(false);
-        menu2ScrollPane.setVisible(false);
-        deletePerformancePane.setVisible(true);
-        editMoviePanel.setVisible(false);
+        this.changeView(deletePerformancePane);
 
         performanceCombobox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             deletePerformanceBtn.setDisable(newValue == null);
@@ -130,11 +156,12 @@ public class MainController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        this.hideAllPane();
     }
 
     public void searchPerformances(ActionEvent actionEvent) {
         final MovieFilter movieFilter = new MovieFilter();
-        SingleSelectionModel<Cinema> selectionModel = this.cinemaCombobox.getSelectionModel();
+        final SingleSelectionModel<Cinema> selectionModel = this.cinemaCombobox.getSelectionModel();
         if (!selectionModel.isEmpty()) {
             movieFilter.setCinemaId(selectionModel.getSelectedItem().getId());
         }
@@ -160,18 +187,34 @@ public class MainController implements Initializable {
         this.performanceTable_menu2.getItems().clear();
     }
 
-
     public void cinemaSelected(ActionEvent actionEvent) {
-        Cinema selectedItem = this.cinemaComboBox.getSelectionModel().getSelectedItem();
+        selectedCinema = this.cinemaComboBox.getSelectionModel().getSelectedItem();
 
-        this.editMovieCity.setText(
-                ofNullable(selectedItem).map(Cinema::getCity).orElse(null)
-        );
-        this.editMovieName.setText(
-                ofNullable(selectedItem).map(Cinema::getName).orElse(null)
-        );
-        this.editMovieCapacity.setText(
-                ofNullable(selectedItem).map(c -> String.valueOf(c.getMaxCapacity())).orElse(null)
-        );
+        final String city = ofNullable(selectedCinema).map(Cinema::getCity).orElse(null);
+        final String cinemaName = ofNullable(selectedCinema).map(Cinema::getName).orElse(null);
+        final String maxCapacity = ofNullable(selectedCinema).map(c -> String.valueOf(c.getMaxCapacity())).orElse(null);
+
+        this.editMovieCity.setText(city);
+        this.editMovieName.setText(cinemaName);
+        this.editMovieCapacity.setText(maxCapacity);
+
+        boolean isDisabled = isNotEmpty(cinemaName) && isNotEmpty(maxCapacity) && isNotEmpty(city);
+        editMovieBtn.setDisable(!isDisabled);
+    }
+
+    private void validateForm() {
+        if (isNull(selectedCinema)) {
+            editMovieBtn.setDisable(true);
+            return;
+        }
+        boolean isModified = !editMovieName.getText().equals(selectedCinema.getName())
+                || !editMovieCity.getText().equals(selectedCinema.getCity())
+                || !editMovieCapacity.getText().equals(String.valueOf(selectedCinema.getMaxCapacity()));
+
+        boolean isNameValid = isNotEmpty(editMovieName.getText());
+        boolean isCityValid = isNotEmpty(editMovieCity.getText());
+        boolean isCapacityValid = editMovieCapacity.getText().matches(NUMBER_REGEX);
+
+        editMovieBtn.setDisable(!(isModified && isNameValid && isCityValid && isCapacityValid));
     }
 }

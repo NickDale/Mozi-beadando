@@ -188,7 +188,7 @@
                         <HBox prefHeight="100.0" prefWidth="200.0">
                            <children>
                               <Separator orientation="VERTICAL" prefHeight="100.0" prefWidth="215.0" visible="false" />
-                              <Button mnemonicParsing="false" prefHeight="42.0" prefWidth="166.0" text="Módosítás" />
+                              <Button fx:id="editMovieBtn" mnemonicParsing="false" prefHeight="42.0" prefWidth="166.0" text="Módosítás" />
                            </children>
                         </HBox>
                      </children>

@@ -2,6 +2,7 @@ package hu.nje.mozifxml.util;
 
 public class Constant {
 
+    public static final String NUMBER_REGEX = "\\d+";
     public static final String DATE_PATTERN = "yyyy-MM-dd";
     public static final String COLUMN_ID = "ID";
     public static final String COLUMN_MOVIE_TITLE = "Film cím";
@@ -10,4 +11,13 @@ public class Constant {
     public static final String COLUMN_VIEWER = "Nézők száma";
     public static final String COLUMN_INCOME = "Bevétel";
     private static final String EMPTY = "";
+
+
+    public static boolean isNotEmpty(final String s) {
+        return s != null && !s.trim().isEmpty();
+    }
+
+    public static boolean isEmpty(final String s) {
+        return s == null || s.trim().isEmpty();
+    }
 }
