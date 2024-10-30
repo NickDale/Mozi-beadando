@@ -45,7 +45,7 @@ abstract class AbstractService {
         }
     }
 
-    protected <T extends AbstractEntity> void save(T entity) {
+    protected <T extends AbstractEntity> boolean save(T entity) {
         EntityManager entityManager = entityManagerFactory.createEntityManager();
         try {
             entityManager.getTransaction().begin();
@@ -55,9 +55,11 @@ abstract class AbstractService {
                 entityManager.merge(entity);
             }
             entityManager.getTransaction().commit();
+            return true;
         } catch (Exception e) {
             entityManager.getTransaction().rollback();
             e.printStackTrace();
+            return false;
         } finally {
             entityManager.clear();
         }

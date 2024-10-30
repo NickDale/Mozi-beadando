@@ -10,7 +10,7 @@ public class CinemaService extends AbstractService {
         return super.findAll(Cinema.FIND_ALL, Cinema.class);
     }
 
-    public void saveCinema(final Cinema cinema) {
-        super.save(cinema);
+    public boolean saveCinema(final Cinema cinema) {
+        return super.save(cinema);
     }
 }

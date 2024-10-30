@@ -10,8 +10,11 @@ public class Constant {
     public static final String COLUMN_DATE = "Előadás dátuma";
     public static final String COLUMN_VIEWER = "Nézők száma";
     public static final String COLUMN_INCOME = "Bevétel";
+    public static final String ERROR_TITLE = "Hiba történt";
+    public static final String ERROR_MSG = "Hiba történt a tranzakció során";
+    public static final String SUCCESSFULLY_SAVED = "Sikeres mentés";
+    public static final String SUCCESSFULLY_SAVED_MSG = "Az adatok sikeresen mentésre kerültek";
     private static final String EMPTY = "";
-
 
     public static boolean isNotEmpty(final String s) {
         return s != null && !s.trim().isEmpty();

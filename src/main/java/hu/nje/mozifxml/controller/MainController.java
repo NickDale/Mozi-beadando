@@ -21,15 +21,20 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.control.SingleSelectionModel;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TextInputControl;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
 
 import java.net.URL;
+import java.util.Arrays;
 import java.util.List;
 import java.util.ResourceBundle;
 
 import static hu.nje.mozifxml.util.Constant.NUMBER_REGEX;
+import static hu.nje.mozifxml.util.Constant.SUCCESSFULLY_SAVED;
+import static hu.nje.mozifxml.util.Constant.SUCCESSFULLY_SAVED_MSG;
 import static hu.nje.mozifxml.util.Constant.isNotEmpty;
+import static hu.nje.mozifxml.util.Helper.alert;
 import static hu.nje.mozifxml.util.Helper.onlyNumbersEventListener;
 import static java.util.Objects.isNull;
 import static java.util.Optional.ofNullable;
@@ -37,10 +42,10 @@ import static java.util.Optional.ofNullable;
 public class MainController implements Initializable {
     private final PerformanceService performanceService = new PerformanceService();
     private final CinemaService cinemaService = new CinemaService();
-
+    private final ChangeListener<String> newCinemaRegListener = (observable, oldValue, newValue) -> newCinemaRegValidator();
+    private final ChangeListener<String> stringChangeListener = (observable, oldValue, newValue) -> validateForm();
     @FXML
     private ScrollPane menu1ScrollPane, menu2ScrollPane;
-
     @FXML
     private Pane deletePerformancePane, editMoviePanel, createMoviePanel;
     @FXML
@@ -54,13 +59,10 @@ public class MainController implements Initializable {
     @FXML
     private RadioButton likeSearch;
     @FXML
-    private TextField movieTitleSearchText, editMovieCapacity, editMovieCity, editMovieName;
-
+    private TextField movieTitleSearchText, editCinemaCapacity, editCinemaCity, editCinemaName,
+            newCinemaName, newCinemaCity, newCinemaCapacity;
     @FXML
-    private Button deletePerformanceBtn, editMovieBtn;
-
-    private Cinema selectedCinema;
-    private final ChangeListener<String> stringChangeListener = (observable, oldValue, newValue) -> validateForm();
+    private Button deletePerformanceBtn, editCinemaBtn, saveCinemaBtn;
 
     /**
      * Kilépés menüpont
@@ -87,7 +89,7 @@ public class MainController implements Initializable {
     }
 
     private void hideAllPane() {
-        List.of(deletePerformancePane, editMoviePanel)
+        List.of(deletePerformancePane, editMoviePanel, createMoviePanel)
                 .forEach(p -> p.setVisible(false));
         List.of(menu1ScrollPane, menu2ScrollPane).forEach(p -> p.setVisible(false));
     }
@@ -110,6 +112,9 @@ public class MainController implements Initializable {
     @FXML
     public void dbCreateMenuItem() {
         this.changeView(createMoviePanel);
+        this.setStringChangeListener(newCinemaRegListener, this.newCinemaCity, newCinemaName, newCinemaCapacity);
+        onlyNumbersEventListener(newCinemaCapacity);
+        cleanNewPage();
     }
 
     /**
@@ -119,13 +124,8 @@ public class MainController implements Initializable {
     @FXML
     public void dbEditMenuItem() {
         this.changeView(editMoviePanel);
-
-
-        this.editMovieCity.textProperty().addListener(stringChangeListener);
-        this.editMovieName.textProperty().addListener(stringChangeListener);
-        this.editMovieCapacity.textProperty().addListener(stringChangeListener);
-
-        onlyNumbersEventListener(editMovieCapacity);
+        this.setStringChangeListener(stringChangeListener, this.editCinemaCity, this.editCinemaName, this.editCinemaCapacity);
+        onlyNumbersEventListener(editCinemaCapacity);
         this.refreshCinemaCombo(cinemaComboBox);
     }
 
@@ -133,6 +133,11 @@ public class MainController implements Initializable {
         comboBox.setItems(
                 FXCollections.observableArrayList(cinemaService.listAllCinema())
         );
+    }
+
+    private void setStringChangeListener(ChangeListener<String> listener, TextField... tfs) {
+        Arrays.stream(tfs)
+                .forEach(tf -> tf.textProperty().addListener(listener));
     }
 
     /**
@@ -194,53 +199,83 @@ public class MainController implements Initializable {
     }
 
     public void cinemaSelected(ActionEvent actionEvent) {
-        selectedCinema = this.cinemaComboBox.getSelectionModel().getSelectedItem();
+        final Cinema selectedCinema = this.cinemaComboBox.getSelectionModel().getSelectedItem();
 
         final String city = ofNullable(selectedCinema).map(Cinema::getCity).orElse(null);
         final String cinemaName = ofNullable(selectedCinema).map(Cinema::getName).orElse(null);
         final String maxCapacity = ofNullable(selectedCinema).map(c -> String.valueOf(c.getMaxCapacity())).orElse(null);
 
-        this.editMovieCity.setText(city);
-        this.editMovieName.setText(cinemaName);
-        this.editMovieCapacity.setText(maxCapacity);
+        this.editCinemaCity.setText(city);
+        this.editCinemaName.setText(cinemaName);
+        this.editCinemaCapacity.setText(maxCapacity);
 
         boolean isDisabled = isNotEmpty(cinemaName) && isNotEmpty(maxCapacity) && isNotEmpty(city);
-        editMovieBtn.setDisable(!isDisabled);
+        editCinemaBtn.setDisable(!isDisabled);
     }
 
     private void validateForm() {
+        final Cinema selectedCinema = this.cinemaComboBox.getSelectionModel().getSelectedItem();
         if (isNull(selectedCinema)) {
-            editMovieBtn.setDisable(true);
+            editCinemaBtn.setDisable(true);
             return;
         }
-        boolean isModified = !editMovieName.getText().equals(selectedCinema.getName())
-                || !editMovieCity.getText().equals(selectedCinema.getCity())
-                || !editMovieCapacity.getText().equals(String.valueOf(selectedCinema.getMaxCapacity()));
 
-        boolean isNameValid = isNotEmpty(editMovieName.getText());
-        boolean isCityValid = isNotEmpty(editMovieCity.getText());
-        boolean isCapacityValid = editMovieCapacity.getText().matches(NUMBER_REGEX);
+        boolean isModified = !selectedCinema.getName().equals(editCinemaName.getText())
+                || !selectedCinema.getCity().equals(editCinemaCity.getText())
+                || !String.valueOf(selectedCinema.getMaxCapacity()).equals(editCinemaCapacity.getText());
 
-        editMovieBtn.setDisable(!(isModified && isNameValid && isCityValid && isCapacityValid));
+        boolean isNameValid = isNotEmpty(editCinemaName.getText());
+        boolean isCityValid = isNotEmpty(editCinemaCity.getText());
+        boolean isCapacityValid = isNotEmpty(editCinemaCapacity.getText()) && editCinemaCapacity.getText().matches(NUMBER_REGEX);
+
+        editCinemaBtn.setDisable(!(isModified && isNameValid && isCityValid && isCapacityValid));
+    }
+
+    private void newCinemaRegValidator() {
+        boolean isNameValid = isNotEmpty(newCinemaName.getText());
+        boolean isCityValid = isNotEmpty(newCinemaCity.getText());
+        boolean isCapacityValid = isNotEmpty(newCinemaCapacity.getText()) && newCinemaCapacity.getText().matches(NUMBER_REGEX);
+
+        saveCinemaBtn.setDisable(!(isNameValid && isCityValid && isCapacityValid));
     }
 
     public void editCinema(ActionEvent actionEvent) {
+        final Cinema selectedCinema = this.cinemaComboBox.getSelectionModel().getSelectedItem();
         if (isNull(selectedCinema)) {
             return;
         }
 
-        selectedCinema.setCity(this.editMovieCity.getText());
-        selectedCinema.setName(this.editMovieName.getText());
-        selectedCinema.setMaxCapacity(Integer.parseInt(this.editMovieCapacity.getText()));
-        cinemaService.saveCinema(selectedCinema);
-        this.cleanCleanEditPage();
+        selectedCinema.setCity(this.editCinemaCity.getText());
+        selectedCinema.setName(this.editCinemaName.getText());
+        selectedCinema.setMaxCapacity(Integer.parseInt(this.editCinemaCapacity.getText()));
+
+        alert(SUCCESSFULLY_SAVED, SUCCESSFULLY_SAVED_MSG, () -> cinemaService.saveCinema(selectedCinema));
+        this.cleanEditPage();
     }
 
-    private void cleanCleanEditPage() {
-        List.of(this.editMovieCity,
-                this.editMovieName,
-                this.editMovieCapacity
-        ).forEach(f -> f.setText(null));
+    private void cleanEditPage() {
         this.refreshCinemaCombo(cinemaComboBox);
+        cinemaCombobox.getSelectionModel().clearSelection();
+        List.of(this.editCinemaName,
+                this.editCinemaCity,
+                this.editCinemaCapacity
+        ).forEach(TextInputControl::clear);
+    }
+
+    private void cleanNewPage() {
+        List.of(this.newCinemaName,
+                this.newCinemaCity,
+                this.newCinemaCapacity
+        ).forEach(f -> f.setText(null));
+    }
+
+    public void saveCinema(ActionEvent actionEvent) {
+        Cinema cinema = new Cinema();
+        cinema.setMaxCapacity(Integer.parseInt(this.newCinemaCapacity.getText()));
+        cinema.setCity(this.newCinemaCity.getText());
+        cinema.setName(this.newCinemaName.getText());
+
+        alert(SUCCESSFULLY_SAVED, SUCCESSFULLY_SAVED_MSG, () -> cinemaService.saveCinema(cinema));
+        this.cleanNewPage();
     }
 }
