@@ -1,17 +1,24 @@
-package hu.nje.mozifxml.db.entities;
+package hu.nje.mozifxml.entities;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import org.hibernate.annotations.NamedQuery;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Objects;
+
+import static hu.nje.mozifxml.util.Constant.DATE_PATTERN;
 
 @Table(name = "eloadas")
 @Entity
+
+@NamedQuery(name = Performance.FIND_ALL, query = "SELECT p From Performance p")
 public class Performance extends AbstractEntity {
+    public static final String FIND_ALL = "Performance.findAll";
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "filmid", referencedColumnName = "id", updatable = false, insertable = false)
@@ -108,5 +115,14 @@ public class Performance extends AbstractEntity {
     @Override
     public int hashCode() {
         return Objects.hash(id, movieId, movie, date, cinemaId, cinema, numberOfViewers, income);
+    }
+
+    @Override
+    public String toString() {
+        return this.movie.getTitle()
+                + " - "
+                + this.getCinema().getName()
+                + " - "
+                + this.date.format(DateTimeFormatter.ofPattern(DATE_PATTERN));
     }
 }
