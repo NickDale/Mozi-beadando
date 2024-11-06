@@ -38,7 +38,7 @@
                 </Menu>
                 <Menu mnemonicParsing="false" text="SOAP kliens">
                     <items>
-                        <MenuItem mnemonicParsing="false" text="Letölt" />
+                        <MenuItem fx:id="mnb1" mnemonicParsing="false" text="Letölt" onAction="#mnbLetolt"/>
                         <MenuItem mnemonicParsing="false" text="Letölt2" />
                         <MenuItem mnemonicParsing="false" text="Grafikon" />
                     </items>

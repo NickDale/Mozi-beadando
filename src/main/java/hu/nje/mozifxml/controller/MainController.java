@@ -5,6 +5,7 @@ import hu.nje.mozifxml.controller.model.MoviePerformance;
 import hu.nje.mozifxml.entities.Cinema;
 import hu.nje.mozifxml.entities.Performance;
 import hu.nje.mozifxml.service.CinemaService;
+import hu.nje.mozifxml.service.MNBService;
 import hu.nje.mozifxml.service.PerformanceService;
 import hu.nje.mozifxml.util.TableBuilder;
 import javafx.application.Platform;
@@ -16,6 +17,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.SingleSelectionModel;
@@ -42,6 +44,7 @@ import static java.util.Optional.ofNullable;
 public class MainController implements Initializable {
     private final PerformanceService performanceService = new PerformanceService();
     private final CinemaService cinemaService = new CinemaService();
+    private final MNBService mnbService = new MNBService();
     private final ChangeListener<String> newCinemaRegListener = (observable, oldValue, newValue) -> newCinemaRegValidator();
     private final ChangeListener<String> stringChangeListener = (observable, oldValue, newValue) -> validateForm();
     @FXML
@@ -64,12 +67,15 @@ public class MainController implements Initializable {
     @FXML
     private Button deletePerformanceBtn, editCinemaBtn, saveCinemaBtn;
 
+    @FXML
+    private MenuItem mnb1;
+
     /**
      * Kilépés menüpont
      */
     @FXML
     protected void onClickExit() {
-        System.exit(0);
+        // System.exit(0);
     }
 
     /**
@@ -277,5 +283,13 @@ public class MainController implements Initializable {
 
         alert(SUCCESSFULLY_SAVED, SUCCESSFULLY_SAVED_MSG, () -> cinemaService.saveCinema(cinema));
         this.cleanNewPage();
+    }
+
+
+    @FXML
+    private void mnbLetolt() {
+        mnbService.downloadAll(
+                mnb1.getParentPopup().getScene().getWindow()
+        );
     }
 }
