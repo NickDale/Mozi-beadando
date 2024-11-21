@@ -7,6 +7,7 @@ import hu.nje.mozifxml.entities.Performance;
 import hu.nje.mozifxml.service.CinemaService;
 import hu.nje.mozifxml.service.MNBService;
 import hu.nje.mozifxml.service.PerformanceService;
+import hu.nje.mozifxml.service.oanda.OandaService;
 import hu.nje.mozifxml.util.TableBuilder;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
@@ -45,6 +46,8 @@ public class MainController implements Initializable {
     private final PerformanceService performanceService = new PerformanceService();
     private final CinemaService cinemaService = new CinemaService();
     private final MNBService mnbService = new MNBService();
+    private final OandaService oandaService = new OandaService();
+
     private final ChangeListener<String> newCinemaRegListener = (observable, oldValue, newValue) -> newCinemaRegValidator();
     private final ChangeListener<String> stringChangeListener = (observable, oldValue, newValue) -> validateForm();
     @FXML
@@ -76,6 +79,7 @@ public class MainController implements Initializable {
     @FXML
     protected void onClickExit() {
         // System.exit(0);
+        oandaService.listOpenPositions();
     }
 
     /**

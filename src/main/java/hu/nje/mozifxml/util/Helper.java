@@ -5,6 +5,9 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyEvent;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Properties;
 import java.util.concurrent.Callable;
 import java.util.function.BiFunction;
 import java.util.function.Supplier;
@@ -14,6 +17,7 @@ import static hu.nje.mozifxml.util.Constant.ERROR_TITLE;
 import static hu.nje.mozifxml.util.Constant.NUMBER_REGEX;
 
 public class Helper {
+    public static final String CONFIG_FILE_NAME = "config.properties";
 
     private static final BiFunction<String, String, Alert> infoAlert = (title, msg) -> {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
@@ -53,6 +57,21 @@ public class Helper {
             Alert alert = errorAlert.get();
             alert.showAndWait();
             e.printStackTrace();
+        }
+    }
+
+    public static Properties loadConfigProperties() {
+        try (InputStream input = Helper.class.getClassLoader().getResourceAsStream(CONFIG_FILE_NAME)) {
+            if (input == null) {
+                throw new RuntimeException("Missing config.properties file!");
+            }
+
+            final var properties = new Properties();
+            properties.load(input);
+
+            return properties;
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
         }
     }
 
