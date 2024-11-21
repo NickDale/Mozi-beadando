@@ -10,7 +10,7 @@ import java.util.List;
 
 abstract class AbstractService {
 
-    public static final String LIKE_PER_CENT = "%";
+
     protected final EntityManagerFactory entityManagerFactory;
 
     AbstractService() {

@@ -18,6 +18,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Function;
 
+import static hu.nje.mozifxml.util.Constant.LIKE_PER_CENT;
+
 public class PerformanceService extends AbstractService {
 
     private final Function<Performance, MoviePerformance> moviePerformanceMapper = p -> {

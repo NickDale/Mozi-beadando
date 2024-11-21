@@ -9,11 +9,14 @@ import hu.nje.mozifxml.service.mnb.model.MNBExchangeRates;
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBException;
 import jakarta.xml.bind.Unmarshaller;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.tempuri.MNBArfolyamServiceSoapImpl;
 
 import java.io.StringReader;
 
 public class NMBDSoapClient {
+    private static final Logger logger = LoggerFactory.getLogger(NMBDSoapClient.class);
 
     private final ObjectFactory objectFactory;
     private final MNBArfolyamServiceSoap service;
@@ -49,19 +52,21 @@ public class NMBDSoapClient {
     public MNBExchangeRates getCurrentExchangeRates() {
         try {
             return this.unmarshal(MNBExchangeRates.class, this.getCurrentExchangeRatesAsXML());
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (Exception ex) {
+            logger.error("Exception in getCurrentExchangeRates", ex);
         }
         return null;
     }
 
+    @SuppressWarnings("all")
     private <T> T unmarshal(Class<T> tClass, String message) {
         try {
             JAXBContext context = JAXBContext.newInstance(tClass);
             Unmarshaller unmarshaller = context.createUnmarshaller();
             return (T) unmarshaller.unmarshal(new StringReader(message));
-        } catch (JAXBException e) {
-            throw new RuntimeException(e);
+        } catch (JAXBException ex) {
+            logger.error("Exception in getCurrentExchangeRates", ex);
+            throw new RuntimeException(ex);
         }
     }
 }

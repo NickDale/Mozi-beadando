@@ -15,6 +15,7 @@ public class Constant {
     public static final String SUCCESSFULLY_SAVED = "Sikeres mentés";
     public static final String SUCCESSFULLY_SAVED_MSG = "Az adatok sikeresen mentésre kerültek";
     public static final String EMPTY = "";
+    public static final String LIKE_PER_CENT = "%";
 
     public static boolean isNotEmpty(final String s) {
         return s != null && !s.trim().isEmpty();
