@@ -14,7 +14,7 @@ public class Constant {
     public static final String ERROR_MSG = "Hiba történt a tranzakció során";
     public static final String SUCCESSFULLY_SAVED = "Sikeres mentés";
     public static final String SUCCESSFULLY_SAVED_MSG = "Az adatok sikeresen mentésre kerültek";
-    private static final String EMPTY = "";
+    public static final String EMPTY = "";
 
     public static boolean isNotEmpty(final String s) {
         return s != null && !s.trim().isEmpty();
