@@ -102,8 +102,7 @@ public class MainController implements Initializable {
      */
     @FXML
     protected void onClickExit() {
-        // System.exit(0);
-        oandaService.listOpenPositions();
+        System.exit(0);
     }
 
     /**
@@ -326,20 +325,25 @@ public class MainController implements Initializable {
         accountTableView.setItems(FXCollections.observableArrayList(oandaService.accountInformation()));
     }
 
-    public void oandaPrices(ActionEvent actionEvent) {
+    @FXML
+    private void oandaPrices(ActionEvent actionEvent) {
     }
 
-    public void oandaPriceHistory(ActionEvent actionEvent) {
+    @FXML
+    private void oandaPriceHistory(ActionEvent actionEvent) {
     }
 
-    public void oandeOpening(ActionEvent actionEvent) {
+    @FXML
+    private void oandaOpening(ActionEvent actionEvent) {
     }
 
-    public void oandaClosing(ActionEvent actionEvent) {
+    @FXML
+    private void oandaClosing(ActionEvent actionEvent) {
 
     }
 
-    public void oandaOpenPositions(ActionEvent actionEvent) {
+    @FXML
+    private void oandaOpenPositions(ActionEvent actionEvent) {
 //           performanceTable_menu1.setItems(
 //                   FXCollections.observableArrayList( oandaService.listOpenPositions())
 //           );
@@ -354,7 +358,7 @@ public class MainController implements Initializable {
      * 3. feladat - Párhuzamos programozás
      */
     @FXML
-    public void startParallel() {
+    private void startParallel() {
         executor.scheduleAtFixedRate(() -> {
             Platform.runLater(() -> pLabel1.setText("Label 1: " + UUID.randomUUID()));
         }, 0, 1, TimeUnit.SECONDS);

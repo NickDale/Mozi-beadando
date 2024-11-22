@@ -53,7 +53,7 @@
                         <MenuItem mnemonicParsing="false" onAction="#oandaAccountInfo" text="Számlainformációk" />
                         <MenuItem mnemonicParsing="false" onAction="#oandaPrices" text="Aktuális árak" />
                         <MenuItem mnemonicParsing="false" onAction="#oandaPriceHistory" text="Historikus árak" />
-                        <MenuItem mnemonicParsing="false" onAction="#oandeOpening" text="Pozíció nyitás" />
+                        <MenuItem mnemonicParsing="false" onAction="#oandaOpening" text="Pozíció nyitás" />
                         <MenuItem mnemonicParsing="false" onAction="#oandaClosing" text="Pozíció zárás" />
                         <MenuItem mnemonicParsing="false" onAction="#oandaOpenPositions" text="Nyitott pozíciók" />
                     </items>
@@ -94,9 +94,6 @@
                                                             <ToggleGroup fx:id="radioGroup" />
                                                         </fx:define>
                                                         <RadioButton mnemonicParsing="false" selected="true" text="Pontos" />
-<!--                                             <toggleGroup>-->
-<!--                                                <ToggleGroup fx:id="radioGroup" />-->
-<!--                                             </toggleGroup></RadioButton>-->
                                                         <RadioButton fx:id="likeSearch" text="Részleges" />
                                                     </children>
                                                 </HBox>
