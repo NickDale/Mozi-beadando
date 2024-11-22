@@ -93,8 +93,8 @@
                                                         <fx:define>
                                                             <ToggleGroup fx:id="radioGroup" />
                                                         </fx:define>
-                                                        <RadioButton mnemonicParsing="false" selected="true" text="Pontos" />
-                                                        <RadioButton fx:id="likeSearch" text="Részleges" />
+                                                        <RadioButton mnemonicParsing="false" selected="true" text="Pontos" toggleGroup="$radioGroup"/>
+                                                        <RadioButton fx:id="likeSearch" text="Részleges" toggleGroup="$radioGroup"/>
                                                     </children>
                                                 </HBox>
                                                 <HBox prefHeight="47.0" prefWidth="409.0">

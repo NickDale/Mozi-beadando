@@ -116,6 +116,9 @@ public class MainController implements Initializable {
         performanceTable_menu1.setItems(FXCollections.observableArrayList(performanceService.listMoviePerformances()));
     }
 
+    /**
+     * A paraméterül kapott felületet jeleníti meg, amíg a többi felületet láthatatlanná teszi
+     */
     private <T extends Region> void changeView(final T selectedPane) {
         this.hideAllPane();
         selectedPane.setVisible(true);
