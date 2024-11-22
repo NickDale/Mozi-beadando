@@ -20,9 +20,11 @@ import com.oanda.v20.trade.TradeCloseRequest;
 import com.oanda.v20.trade.TradeSpecifier;
 import hu.nje.mozifxml.util.Helper;
 
+import java.lang.reflect.Field;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -56,11 +58,20 @@ public class OandaService {
         this.accountID = new AccountID(properties.getProperty(OANDA_ACCOUNT_ID));
     }
 
-    public void accountInformation() {
+    public List<Item> accountInformation() {
         try {
-            AccountSummary summary = this.context.account.summary(accountID).getAccount();
+            final List<Item> items = new ArrayList<>();
+            final AccountSummary summary = this.context.account.summary(accountID).getAccount();
+
+            Field[] declaredFields = summary.getClass().getDeclaredFields();
+            for (Field declaredField : declaredFields) {
+                declaredField.setAccessible(true);
+                items.add(new Item(declaredField.getName(), declaredField.get(summary)));
+            }
+
             System.out.println("summary = " + summary);
-        } catch (RequestException | ExecuteException ex) {
+            return items;
+        } catch (Exception ex) {
             throw new RuntimeException(ex);
         }
     }
@@ -134,9 +145,8 @@ public class OandaService {
         }
     }
 
-    public void listOpenPositions() {
+    public List<Trade> listOpenPositions() {
         try {
-            System.out.println("Nyitott tradek:");
             final List<Trade> trades = this.context.trade.listOpen(this.accountID).getTrades();
 
             trades.forEach(trade -> {
@@ -146,6 +156,8 @@ public class OandaService {
                         trade.getId() + "\t" + trade.getInstrument() + "\t" + trade.getOpenTime()
                                 + "\t" + trade.getCurrentUnits() + "\t" + trade.getPrice() + "\t" + trade.getUnrealizedPL());
             });
+
+            return trades;
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

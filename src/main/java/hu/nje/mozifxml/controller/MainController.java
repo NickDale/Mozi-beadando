@@ -7,6 +7,7 @@ import hu.nje.mozifxml.entities.Performance;
 import hu.nje.mozifxml.service.CinemaService;
 import hu.nje.mozifxml.service.MNBService;
 import hu.nje.mozifxml.service.PerformanceService;
+import hu.nje.mozifxml.service.oanda.Item;
 import hu.nje.mozifxml.service.oanda.OandaService;
 import hu.nje.mozifxml.util.TableBuilder;
 import javafx.application.Platform;
@@ -18,10 +19,12 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.SingleSelectionModel;
+import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputControl;
@@ -32,6 +35,10 @@ import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
 import java.util.ResourceBundle;
+import java.util.UUID;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import static hu.nje.mozifxml.util.Constant.NUMBER_REGEX;
 import static hu.nje.mozifxml.util.Constant.SUCCESSFULLY_SAVED;
@@ -50,12 +57,16 @@ public class MainController implements Initializable {
 
     private final ChangeListener<String> newCinemaRegListener = (observable, oldValue, newValue) -> newCinemaRegValidator();
     private final ChangeListener<String> stringChangeListener = (observable, oldValue, newValue) -> validateForm();
+
+    private ScheduledExecutorService executor;
     @FXML
     private ScrollPane menu1ScrollPane, menu2ScrollPane;
     @FXML
-    private Pane deletePerformancePane, editMoviePanel, createMoviePanel;
+    private Pane deletePerformancePane, editMoviePanel, createMoviePanel, accountInfoPanel, parallelPanel;
     @FXML
     private TableView<MoviePerformance> performanceTable_menu1, performanceTable_menu2;
+    @FXML
+    private TableView<Item> accountTableView;
     @FXML
     private CheckBox caseInsensitiveCheckbox;
     @FXML
@@ -71,7 +82,20 @@ public class MainController implements Initializable {
     private Button deletePerformanceBtn, editCinemaBtn, saveCinemaBtn;
 
     @FXML
+    private Label pLabel1, pLabel2;
+
+    @FXML
     private MenuItem mnb1;
+
+    @FXML
+    private TableColumn<Item, String> columnName, columnValue;
+
+
+    @Override
+    public void initialize(URL url, ResourceBundle resourceBundle) {
+        this.hideAllPane();
+        this.executor = Executors.newScheduledThreadPool(2);
+    }
 
     /**
      * Kilépés menüpont
@@ -99,13 +123,13 @@ public class MainController implements Initializable {
     }
 
     private void hideAllPane() {
-        List.of(deletePerformancePane, editMoviePanel, createMoviePanel)
+        List.of(deletePerformancePane, editMoviePanel, createMoviePanel, accountInfoPanel, parallelPanel)
                 .forEach(p -> p.setVisible(false));
         List.of(menu1ScrollPane, menu2ScrollPane).forEach(p -> p.setVisible(false));
     }
 
     /**
-     * 1. feladat - Asatbázis menü - Olvas2 almenü
+     * 1. feladat - Adatbázis menü - Olvas2 almenü
      */
     @FXML
     protected void dbReadMenuItem2() {
@@ -117,7 +141,7 @@ public class MainController implements Initializable {
     }
 
     /**
-     * 1. feladat - Asatbázis menü - Ír almenü
+     * 1. feladat - Adatbázis menü - Ír almenü
      */
     @FXML
     public void dbCreateMenuItem() {
@@ -128,9 +152,8 @@ public class MainController implements Initializable {
     }
 
     /**
-     * 1. feladat - Asatbázis menü - Módosít almenü
+     * 1. feladat - Adatbázis menü - Módosít almenü
      */
-
     @FXML
     public void dbEditMenuItem() {
         this.changeView(editMoviePanel);
@@ -151,7 +174,7 @@ public class MainController implements Initializable {
     }
 
     /**
-     * 1. feladat - Asatbázis menü - Töröl almenü
+     * 1. feladat - Adatbázis menü - Töröl almenü
      */
     @FXML
     public void dbDeleteMenuItem() {
@@ -173,11 +196,6 @@ public class MainController implements Initializable {
         performanceCombobox.setItems(
                 FXCollections.observableArrayList(performanceService.listPerformances())
         );
-    }
-
-    @Override
-    public void initialize(URL url, ResourceBundle resourceBundle) {
-        this.hideAllPane();
     }
 
     public void searchPerformances(ActionEvent actionEvent) {
@@ -295,5 +313,60 @@ public class MainController implements Initializable {
         mnbService.downloadAll(
                 mnb1.getParentPopup().getScene().getWindow()
         );
+    }
+
+    /**
+     * 4. feladat - Forex menü (Oanda API)- Számlainformációk almenü
+     */
+    public void oandaAccountInfo(ActionEvent actionEvent) {
+        this.changeView(accountInfoPanel);
+        columnName.setCellValueFactory(cellData -> cellData.getValue().nameProperty());
+        columnValue.setCellValueFactory(cellData -> cellData.getValue().valueProperty());
+
+        accountTableView.setItems(FXCollections.observableArrayList(oandaService.accountInformation()));
+    }
+
+    public void oandaPrices(ActionEvent actionEvent) {
+    }
+
+    public void oandaPriceHistory(ActionEvent actionEvent) {
+    }
+
+    public void oandeOpening(ActionEvent actionEvent) {
+    }
+
+    public void oandaClosing(ActionEvent actionEvent) {
+
+    }
+
+    public void oandaOpenPositions(ActionEvent actionEvent) {
+//           performanceTable_menu1.setItems(
+//                   FXCollections.observableArrayList( oandaService.listOpenPositions())
+//           );
+    }
+
+    @FXML
+    private void parallelProgramming(ActionEvent actionEvent) {
+        this.changeView(parallelPanel);
+    }
+
+    /**
+     * 3. feladat - Párhuzamos programozás
+     */
+    @FXML
+    public void startParallel() {
+        executor.scheduleAtFixedRate(() -> {
+            Platform.runLater(() -> pLabel1.setText("Label 1: " + UUID.randomUUID()));
+        }, 0, 1, TimeUnit.SECONDS);
+
+        executor.scheduleAtFixedRate(() -> {
+            Platform.runLater(() -> pLabel2.setText("Label 2: " + UUID.randomUUID()));
+        }, 0, 2, TimeUnit.SECONDS);
+    }
+
+    public void shutdown() {
+        if (executor != null && !executor.isShutdown()) {
+            executor.shutdown();
+        }
     }
 }
