@@ -1,6 +1,7 @@
 package hu.nje.mozifxml.service;
 
 import hu.nje.mozifxml.service.mnb.NMBDSoapClient;
+import hu.nje.mozifxml.util.Constant;
 import javafx.stage.FileChooser;
 import javafx.stage.Window;
 import org.w3c.dom.Document;
@@ -17,22 +18,25 @@ import javax.xml.transform.stream.StreamResult;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.util.function.Function;
+import java.time.LocalDate;
+import java.util.Collection;
+import java.util.List;
+import java.util.function.BiFunction;
+
+import static java.util.Optional.ofNullable;
 
 public class MNBService {
 
     private static final String MNB_EXPORT_FILE_NAME = "MNB.txt";
 
     private final NMBDSoapClient soapClient;
-    private final Function<Window, File> chooseFileFunction = window -> {
+    private final BiFunction<Window, String, File> chooseFileFunction = (window, fileName) -> {
         final FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Save File");
 
         FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("Text Files (*.txt)", "*.txt");
         fileChooser.getExtensionFilters().add(extFilter);
-
-        fileChooser.setInitialFileName(MNB_EXPORT_FILE_NAME);
+        fileChooser.setInitialFileName(fileName);
 
         return fileChooser.showSaveDialog(window);
     };
@@ -41,10 +45,14 @@ public class MNBService {
         this.soapClient = new NMBDSoapClient();
     }
 
-    public void downloadAll(Window window) {
+    public List<String> currencies() {
+        return soapClient.getCurrencies();
+    }
+
+    public void downloadAll(final Window window) {
         final String allExchangeRatesAsXML = soapClient.getAllExchangeRatesAsString();
 
-        File file = this.chooseFileFunction.apply(window);
+        File file = this.chooseFileFunction.apply(window, MNB_EXPORT_FILE_NAME);
         if (file != null) {
             try {
                 this.writeXML(file, allExchangeRatesAsXML);
@@ -54,13 +62,14 @@ public class MNBService {
         }
     }
 
-    public void downloadByInputs(Window window) {
-        //TODO: implement
-
-        File file = this.chooseFileFunction.apply(window);
+    public void downloadByInputs(final Window window, final String fileName,
+                                 final LocalDate startDate, final LocalDate endDate,
+                                 final Collection<String> currencies) {
+        final String xmlResponse = soapClient.getAllExchangeRatesAsStringByFilter(startDate, endDate, currencies);
+        File file = this.chooseFileFunction.apply(window, ofNullable(fileName).filter(Constant::isNotEmpty).orElse(MNB_EXPORT_FILE_NAME));
         if (file != null) {
             try {
-                this.writeXML(file, null);
+                this.writeXML(file, xmlResponse);
             } catch (Exception ex) {
                 throw new RuntimeException(ex);
             }
@@ -69,7 +78,7 @@ public class MNBService {
 
     private void writeXML(final File file, final String xml) throws ParserConfigurationException,
             TransformerException, IOException, SAXException {
-        Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder()
+        final Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder()
                 .parse(new ByteArrayInputStream(xml.getBytes()));
 
         final Transformer transformer = TransformerFactory.newInstance().newTransformer();
@@ -77,14 +86,6 @@ public class MNBService {
         transformer.setOutputProperty("{http://xml.apache.org/xalan}indent-amount", "2");
 
         transformer.transform(new DOMSource(doc), new StreamResult(file));
-    }
-
-    private void writeToFile(final File file) {
-        try {
-            Files.writeString(file.toPath(), "tsfdsfsdfdsfdsfdsfdsfdsf");
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
     }
 
 }

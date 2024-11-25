@@ -13,12 +13,14 @@ import hu.nje.mozifxml.util.TableBuilder;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.RadioButton;
@@ -28,8 +30,10 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputControl;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
+import org.controlsfx.control.CheckComboBox;
 
 import java.net.URL;
 import java.util.Arrays;
@@ -62,7 +66,7 @@ public class MainController implements Initializable {
     @FXML
     private ScrollPane menu1ScrollPane, menu2ScrollPane;
     @FXML
-    private Pane deletePerformancePane, editMoviePanel, createMoviePanel, accountInfoPanel, parallelPanel;
+    private Pane deletePerformancePane, editMoviePanel, createMoviePanel, accountInfoPanel, parallelPanel, mnbFilterPane;
     @FXML
     private TableView<MoviePerformance> performanceTable_menu1, performanceTable_menu2;
     @FXML
@@ -73,11 +77,18 @@ public class MainController implements Initializable {
     private ComboBox<Cinema> cinemaCombobox, cinemaComboBox;
     @FXML
     private ComboBox<Performance> performanceCombobox;
+
+    @FXML
+    private HBox currencyHBox;
+
+    @FXML
+    private DatePicker fromDatePicker, toDatePicker;
+
     @FXML
     private RadioButton likeSearch;
     @FXML
     private TextField movieTitleSearchText, editCinemaCapacity, editCinemaCity, editCinemaName,
-            newCinemaName, newCinemaCity, newCinemaCapacity;
+            newCinemaName, newCinemaCity, newCinemaCapacity, mnbFileName;
     @FXML
     private Button deletePerformanceBtn, editCinemaBtn, saveCinemaBtn;
 
@@ -85,11 +96,12 @@ public class MainController implements Initializable {
     private Label pLabel1, pLabel2;
 
     @FXML
-    private MenuItem mnb1;
+    private MenuItem mnb1, mnb2;
 
     @FXML
     private TableColumn<Item, String> columnName, columnValue;
 
+    private CheckComboBox<String> checkComboBox;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -125,7 +137,7 @@ public class MainController implements Initializable {
     }
 
     private void hideAllPane() {
-        List.of(deletePerformancePane, editMoviePanel, createMoviePanel, accountInfoPanel, parallelPanel)
+        List.of(deletePerformancePane, editMoviePanel, createMoviePanel, accountInfoPanel, parallelPanel, mnbFilterPane)
                 .forEach(p -> p.setVisible(false));
         List.of(menu1ScrollPane, menu2ScrollPane).forEach(p -> p.setVisible(false));
     }
@@ -303,11 +315,42 @@ public class MainController implements Initializable {
         this.cleanNewPage();
     }
 
-
+    /**
+     * 2. feladat - SOAP kliens - letölt1 almenü
+     */
     @FXML
     private void mnbLetolt() {
         mnbService.downloadAll(
                 mnb1.getParentPopup().getScene().getWindow()
+        );
+    }
+
+    /**
+     * 2. feladat - SOAP kliens - letölt2 almenü
+     */
+    @FXML
+    public void mnbLetolt2(ActionEvent actionEvent) {
+        this.changeView(this.mnbFilterPane);
+        this.checkComboBox = new CheckComboBox<>();
+        checkComboBox.getItems().addAll(mnbService.currencies());
+
+        currencyHBox.getChildren().remove(1);
+        currencyHBox.getChildren().add(checkComboBox);
+    }
+
+    /**
+     * 2. feladat - SOAP kliens - letölt2 almenü - Letöltés gomb action
+     */
+    public void downloadMNB2(ActionEvent actionEvent) {
+        final ObservableList<String> selectedCurrencies = checkComboBox.getCheckModel().getCheckedItems();
+        final String text = mnbFileName.getText();
+
+        mnbService.downloadByInputs(
+                mnb2.getParentPopup().getScene().getWindow(),
+                text,
+                this.fromDatePicker.getValue(),
+                this.toDatePicker.getValue(),
+                selectedCurrencies
         );
     }
 

@@ -1,5 +1,7 @@
 package hu.nje.mozifxml.util;
 
+import java.util.Collection;
+
 public class Constant {
 
     public static final String NUMBER_REGEX = "\\d+";
@@ -18,10 +20,18 @@ public class Constant {
     public static final String LIKE_PER_CENT = "%";
 
     public static boolean isNotEmpty(final String s) {
-        return s != null && !s.trim().isEmpty();
+        return !isEmpty(s);
     }
 
     public static boolean isEmpty(final String s) {
         return s == null || s.trim().isEmpty();
+    }
+
+    public static <E> boolean isNotEmpty(final Collection<E> collection) {
+        return !isEmpty(collection);
+    }
+
+    public static <E> boolean isEmpty(final Collection<E> collection) {
+        return collection == null || collection.isEmpty();
     }
 }
