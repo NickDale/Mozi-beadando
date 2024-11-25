@@ -164,17 +164,6 @@ public class MainController implements Initializable {
         this.refreshCinemaCombo(cinemaComboBox);
     }
 
-    private void refreshCinemaCombo(ComboBox<Cinema> comboBox) {
-        comboBox.setItems(
-                FXCollections.observableArrayList(cinemaService.listAllCinema())
-        );
-    }
-
-    private void setStringChangeListener(ChangeListener<String> listener, TextField... tfs) {
-        Arrays.stream(tfs)
-                .forEach(tf -> tf.textProperty().addListener(listener));
-    }
-
     /**
      * 1. feladat - Adatbázis menü - Töröl almenü
      */
@@ -188,18 +177,17 @@ public class MainController implements Initializable {
         this.setPerformanceCombobox();
     }
 
+    /**
+     * 1. feladat - Adatbázis menü - Töröl almenü - Kattintás álltal kiváltott esemény
+     */
+    @FXML
     public void deletePerformance() {
         Performance selectedItem = performanceCombobox.getSelectionModel().getSelectedItem();
         performanceService.deletePerformance(selectedItem);
         this.setPerformanceCombobox();
     }
 
-    private void setPerformanceCombobox() {
-        performanceCombobox.setItems(
-                FXCollections.observableArrayList(performanceService.listPerformances())
-        );
-    }
-
+    @FXML
     public void searchPerformances(ActionEvent actionEvent) {
         final MovieFilter movieFilter = new MovieFilter();
         final SingleSelectionModel<Cinema> selectionModel = this.cinemaCombobox.getSelectionModel();
@@ -228,6 +216,7 @@ public class MainController implements Initializable {
         this.performanceTable_menu2.getItems().clear();
     }
 
+    @FXML
     public void cinemaSelected(ActionEvent actionEvent) {
         final Cinema selectedCinema = this.cinemaComboBox.getSelectionModel().getSelectedItem();
 
@@ -269,6 +258,7 @@ public class MainController implements Initializable {
         saveCinemaBtn.setDisable(!(isNameValid && isCityValid && isCapacityValid));
     }
 
+    @FXML
     public void editCinema(ActionEvent actionEvent) {
         final Cinema selectedCinema = this.cinemaComboBox.getSelectionModel().getSelectedItem();
         if (isNull(selectedCinema)) {
@@ -299,6 +289,10 @@ public class MainController implements Initializable {
         ).forEach(f -> f.setText(null));
     }
 
+    /**
+     * Új mozi hozzáadása
+     */
+    @FXML
     public void saveCinema(ActionEvent actionEvent) {
         Cinema cinema = new Cinema();
         cinema.setMaxCapacity(Integer.parseInt(this.newCinemaCapacity.getText()));
@@ -320,6 +314,7 @@ public class MainController implements Initializable {
     /**
      * 4. feladat - Forex menü (Oanda API)- Számlainformációk almenü
      */
+    @FXML
     public void oandaAccountInfo(ActionEvent actionEvent) {
         this.changeView(accountInfoPanel);
         columnName.setCellValueFactory(cellData -> cellData.getValue().nameProperty());
@@ -376,4 +371,22 @@ public class MainController implements Initializable {
             executor.shutdown();
         }
     }
+
+    private void setPerformanceCombobox() {
+        performanceCombobox.setItems(
+                FXCollections.observableArrayList(performanceService.listPerformances())
+        );
+    }
+
+    private void refreshCinemaCombo(ComboBox<Cinema> comboBox) {
+        comboBox.setItems(
+                FXCollections.observableArrayList(cinemaService.listAllCinema())
+        );
+    }
+
+    private void setStringChangeListener(ChangeListener<String> listener, TextField... tfs) {
+        Arrays.stream(tfs)
+                .forEach(tf -> tf.textProperty().addListener(listener));
+    }
+
 }

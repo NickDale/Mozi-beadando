@@ -42,7 +42,7 @@ public class MNBService {
     }
 
     public void downloadAll(Window window) {
-        final String allExchangeRatesAsXML = soapClient.getCurrentExchangeRatesAsXML();
+        final String allExchangeRatesAsXML = soapClient.getAllExchangeRatesAsString();
 
         File file = this.chooseFileFunction.apply(window);
         if (file != null) {
