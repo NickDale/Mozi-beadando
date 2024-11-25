@@ -47,7 +47,7 @@
                     </items>
                 </Menu>
                 <Menu mnemonicParsing="false" text="Párhuzamos">
-                    <MenuItem mnemonicParsing="false" onAction="#parallelProgramming" text="Start" />
+                    <MenuItem mnemonicParsing="false" onAction="#parallelProgramming" text="Példa" />
                 </Menu>
                 <Menu mnemonicParsing="false" text="Forex">
                     <items>
@@ -333,7 +333,63 @@
                                 </HBox>
                     </children>
                 </Pane>
-                <Pane layoutX="50.0" layoutY="50.0" prefHeight="425.0" prefWidth="690.0" visible="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                <Pane fx:id="openPositionPane" layoutX="6.0" prefHeight="395.0" prefWidth="660.0"
+                      AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="6.0" AnchorPane.rightAnchor="-6.0"
+                      AnchorPane.topAnchor="0.0">
+                    <children>
+                        <HBox layoutX="107.0" layoutY="20.0" prefHeight="188.0" prefWidth="540.0" spacing="10.0">
+                            <children>
+                                <VBox prefHeight="188.0" prefWidth="430.0" spacing="10.0">
+                                    <children>
+                                        <HBox prefHeight="46.0" prefWidth="432.0" spacing="10.0">
+                                            <children>
+                                                <Label prefHeight="38.0" prefWidth="118.0" text="Alapdeviza"/>
+                                                <ComboBox fx:id="baseCurrencyComboBox" prefHeight="25.0"
+                                                          prefWidth="150.0"/>
+                                                <Label prefHeight="38.0" prefWidth="118.0" text="Céldeviza"/>
+                                                <ComboBox fx:id="targetCurrencyComboBox" prefHeight="25.0"
+                                                          prefWidth="150.0"/>
+                                            </children>
+                                        </HBox>
+                                        <HBox prefHeight="47.0" prefWidth="409.0" spacing="10.0">
+                                            <children>
+                                                <Label prefHeight="38.0" prefWidth="116.0" text="Mennyiség"/>
+                                                <TextField fx:id="amountTextField" prefHeight="35.0" prefWidth="231.0"/>
+                                            </children>
+                                        </HBox>
+                                        <HBox prefHeight="35.0" prefWidth="431.0" spacing="10.0">
+                                            <children>
+                                                <Label prefHeight="38.0" prefWidth="116.0" text="Irány"/>
+                                                <ComboBox fx:id="directionComboBox" prefHeight="25.0" prefWidth="231.0" />
+                                            </children>
+                                        </HBox>
+                                    </children>
+                                </VBox>
+                                <VBox prefHeight="188.0" prefWidth="100.0">
+                                    <children>
+                                        <HBox prefHeight="100.0" prefWidth="200.0"/>
+                                        <HBox prefHeight="100.0" prefWidth="200.0">
+                                            <children>
+                                                <Button mnemonicParsing="false" onAction="#openPosition"
+                                                        prefHeight="46.0" prefWidth="150.0" text="Pozíció megnyitása"/>
+                                            </children>
+                                        </HBox>
+                                        <HBox prefHeight="100.0" prefWidth="200.0"/>
+                                    </children>
+                                </VBox>
+                            </children>
+                        </HBox>
+                    </children>
+                </Pane>
+                 <ScrollPane fx:id="openedPosition" prefHeight="575.0" prefWidth="800.0" visible="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                    <content>
+                        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="572.0" prefWidth="797.0">
+                            <children>
+                                <TableView fx:id="openPositionTableView" layoutX="24.0" layoutY="52.0" prefHeight="511.0" prefWidth="767.0" />
+                            </children>
+                        </AnchorPane>
+                    </content>
+                </ScrollPane>
                 <Pane layoutX="60.0" layoutY="60.0" prefHeight="425.0" prefWidth="690.0" visible="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
             </children>
         </AnchorPane>

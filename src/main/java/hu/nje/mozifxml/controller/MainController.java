@@ -1,5 +1,6 @@
 package hu.nje.mozifxml.controller;
 
+import com.oanda.v20.trade.Trade;
 import hu.nje.mozifxml.controller.model.MovieFilter;
 import hu.nje.mozifxml.controller.model.MoviePerformance;
 import hu.nje.mozifxml.entities.Cinema;
@@ -7,6 +8,7 @@ import hu.nje.mozifxml.entities.Performance;
 import hu.nje.mozifxml.service.CinemaService;
 import hu.nje.mozifxml.service.MNBService;
 import hu.nje.mozifxml.service.PerformanceService;
+import hu.nje.mozifxml.service.oanda.Direction;
 import hu.nje.mozifxml.service.oanda.Item;
 import hu.nje.mozifxml.service.oanda.OandaService;
 import hu.nje.mozifxml.util.TableBuilder;
@@ -47,9 +49,11 @@ import java.util.concurrent.TimeUnit;
 import static hu.nje.mozifxml.util.Constant.NUMBER_REGEX;
 import static hu.nje.mozifxml.util.Constant.SUCCESSFULLY_SAVED;
 import static hu.nje.mozifxml.util.Constant.SUCCESSFULLY_SAVED_MSG;
+import static hu.nje.mozifxml.util.Constant.isEmpty;
 import static hu.nje.mozifxml.util.Constant.isNotEmpty;
 import static hu.nje.mozifxml.util.Helper.alert;
 import static hu.nje.mozifxml.util.Helper.onlyNumbersEventListener;
+import static hu.nje.mozifxml.util.Helper.warningAlertPopup;
 import static java.util.Objects.isNull;
 import static java.util.Optional.ofNullable;
 
@@ -64,19 +68,30 @@ public class MainController implements Initializable {
 
     private ScheduledExecutorService executor;
     @FXML
-    private ScrollPane menu1ScrollPane, menu2ScrollPane;
+    private ScrollPane menu1ScrollPane, menu2ScrollPane, openedPosition;
     @FXML
-    private Pane deletePerformancePane, editMoviePanel, createMoviePanel, accountInfoPanel, parallelPanel, mnbFilterPane;
+    private Pane deletePerformancePane, editMoviePanel, createMoviePanel, accountInfoPanel,
+            parallelPanel, mnbFilterPane, openPositionPane;
     @FXML
     private TableView<MoviePerformance> performanceTable_menu1, performanceTable_menu2;
     @FXML
     private TableView<Item> accountTableView;
+
+    @FXML
+    private TableView<Trade> openPositionTableView;
     @FXML
     private CheckBox caseInsensitiveCheckbox;
     @FXML
     private ComboBox<Cinema> cinemaCombobox, cinemaComboBox;
     @FXML
     private ComboBox<Performance> performanceCombobox;
+
+    @FXML
+    private ComboBox<String> baseCurrencyComboBox, targetCurrencyComboBox, directionComboBox;
+
+    @FXML
+    private TextField amountTextField;
+
 
     @FXML
     private HBox currencyHBox;
@@ -137,9 +152,10 @@ public class MainController implements Initializable {
     }
 
     private void hideAllPane() {
-        List.of(deletePerformancePane, editMoviePanel, createMoviePanel, accountInfoPanel, parallelPanel, mnbFilterPane)
+        List.of(deletePerformancePane, editMoviePanel, createMoviePanel, accountInfoPanel, parallelPanel,
+                        mnbFilterPane, openPositionPane)
                 .forEach(p -> p.setVisible(false));
-        List.of(menu1ScrollPane, menu2ScrollPane).forEach(p -> p.setVisible(false));
+        List.of(menu1ScrollPane, menu2ScrollPane, openedPosition).forEach(p -> p.setVisible(false));
     }
 
     /**
@@ -218,7 +234,7 @@ public class MainController implements Initializable {
 
     private void renderTableData(TableView<MoviePerformance> tableView) {
         tableView.getColumns().clear();
-        tableView.getColumns().addAll(TableBuilder.createDbColumn());
+        tableView.getColumns().addAll(TableBuilder.createPerformanceDbColumn());
     }
 
     private void clearSearchPerformances() {
@@ -376,6 +392,14 @@ public class MainController implements Initializable {
 
     @FXML
     private void oandaOpening(ActionEvent actionEvent) {
+        this.baseCurrencyComboBox.setItems(
+                FXCollections.observableArrayList(oandaService.defaultCurrencyCodes)
+        );
+        this.targetCurrencyComboBox.setItems(
+                FXCollections.observableArrayList(oandaService.defaultCurrencyCodes)
+        );
+        this.directionComboBox.setItems(FXCollections.observableArrayList(OandaService.DIRECTION_ELADAS, OandaService.DIRECTION_VETEL));
+        this.changeView(openPositionPane);
     }
 
     @FXML
@@ -385,9 +409,41 @@ public class MainController implements Initializable {
 
     @FXML
     private void oandaOpenPositions(ActionEvent actionEvent) {
-//           performanceTable_menu1.setItems(
-//                   FXCollections.observableArrayList( oandaService.listOpenPositions())
-//           );
+        this.changeView(openedPosition);
+        openPositionTableView.getColumns().clear();
+        openPositionTableView.getColumns().addAll(TableBuilder.positionTableRenderer());
+        openPositionTableView.setItems(
+                FXCollections.observableArrayList(oandaService.listOpenPositions())
+        );
+    }
+
+    @FXML
+    private void openPosition() {
+        final String baseCurrency = baseCurrencyComboBox.getValue();
+        final String targetCurrency = targetCurrencyComboBox.getValue();
+        final String amount = amountTextField.getText();
+        final String direction = directionComboBox.getValue();
+        if (isEmpty(baseCurrency)) {
+            warningAlertPopup.apply("Az alapdevizát ki kell választani!");
+            return;
+        }
+        if (isEmpty(targetCurrency)) {
+            warningAlertPopup.apply("A céldevizát ki kell választani!");
+            return;
+        }
+        if (isEmpty(amount) || !amount.matches("\\d+(\\.\\d+)?")) {
+            warningAlertPopup.apply("A mennyiség mező csak számokat tartalmazhat, és kötelező!");
+            return;
+        }
+        if (direction == null) {
+            warningAlertPopup.apply("Az irányt ki kell választani!");
+            return;
+        }
+
+        final String instrument = baseCurrency + "_" + targetCurrency;
+        final Direction directionType = direction.equalsIgnoreCase(OandaService.DIRECTION_VETEL) ? Direction.LONG : Direction.SHORT;
+
+        alert("OK", "Pozicíó megnyitva", () -> oandaService.open(instrument, Double.parseDouble(amount), directionType));
     }
 
     @FXML

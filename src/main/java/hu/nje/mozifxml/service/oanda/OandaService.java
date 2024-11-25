@@ -19,33 +19,33 @@ import com.oanda.v20.trade.Trade;
 import com.oanda.v20.trade.TradeCloseRequest;
 import com.oanda.v20.trade.TradeSpecifier;
 import hu.nje.mozifxml.util.Helper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Field;
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Properties;
-import java.util.function.Function;
 
 import static hu.nje.mozifxml.util.Constant.EMPTY;
+import static hu.nje.mozifxml.util.Helper.format;
 
 
 public class OandaService {
 
+    public static final String DIRECTION_VETEL = "Vétel";
+    public static final String DIRECTION_ELADAS = "Eladás";
+
+    private static final Logger logger = LoggerFactory.getLogger(OandaService.class);
     private static final String OANDA_URL = "oanda.url";
     private static final String OANDA_TOKEN = "oanda.token";
     private static final String OANDA_ACCOUNT_ID = "oanda.account_id";
+    public final List<String> defaultCurrencyCodes = List.of("EUR", "USD", "JPY", "GBP", "CHF", "HUF");
 
     private final Context context;
     private final AccountID accountID;
-
-    private final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm").withZone(ZoneId.systemDefault());
-    private final Function<DateTime, String> format = dateString ->
-            this.dateTimeFormatter.format(Instant.parse(dateString.toString()));
 
     public OandaService() {
         final Properties properties = Helper.loadConfigProperties();
@@ -116,7 +116,7 @@ public class OandaService {
     }
 
 
-    public void open(final String instrument, final double units, final Direction direction) {
+    public boolean open(final String instrument, final double units, final Direction direction) {
         System.out.println("Place a Market Order");
         try {
             final var marketorderrequest = new MarketOrderRequest();
@@ -127,28 +127,33 @@ public class OandaService {
             request.setOrder(marketorderrequest);
             final OrderCreateResponse response = this.context.order.create(request);
 
-            System.out.println("tradeId: " + response.getOrderFillTransaction().getId());
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+            logger.info("tradeId: {}", response.getOrderFillTransaction().getId());
+            return true;
+        } catch (Exception ex) {
+            logger.error(ex.getMessage());
         }
+        return false;
     }
 
-    public void close(final String tradeId) {
-        this.close(new TradeSpecifier(tradeId));
+    public boolean close(final String tradeId) {
+        return this.close(new TradeSpecifier(tradeId));
     }
 
-    public void close(final TradeSpecifier tradeSpecifier) {
+    public boolean close(final TradeSpecifier tradeSpecifier) {
         try {
             this.context.trade.close(new TradeCloseRequest(this.accountID, tradeSpecifier));
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+            return true;
+        } catch (Exception ex) {
+            logger.error(ex.getMessage());
         }
+        return false;
     }
 
     public List<Trade> listOpenPositions() {
         try {
             final List<Trade> trades = this.context.trade.listOpen(this.accountID).getTrades();
-
+            /*
+            //for testing
             trades.forEach(trade -> {
                 System.out.println(trade.toString());
                 System.out.println();
@@ -156,7 +161,7 @@ public class OandaService {
                         trade.getId() + "\t" + trade.getInstrument() + "\t" + trade.getOpenTime()
                                 + "\t" + trade.getCurrentUnits() + "\t" + trade.getPrice() + "\t" + trade.getUnrealizedPL());
             });
-
+            */
             return trades;
         } catch (Exception e) {
             throw new RuntimeException(e);
