@@ -401,6 +401,36 @@
                         </AnchorPane>
                     </content>
                 </ScrollPane>
+                <Pane  fx:id="closePane" layoutX="60.0" layoutY="60.0" prefHeight="425.0" prefWidth="690.0" visible="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" >
+                    <children>
+                        <HBox layoutX="107.0" layoutY="20.0" prefHeight="188.0" prefWidth="540.0" spacing="10.0">
+                            <children>
+                                <VBox prefHeight="188.0" prefWidth="430.0" spacing="10.0">
+                                    <children>
+                                        <HBox prefHeight="47.0" prefWidth="409.0" spacing="10.0">
+                                            <children>
+                                                <Label prefHeight="38.0" prefWidth="116.0" text="Zárandó tranzakció Id"/>
+                                                <TextField fx:id="closeTrxIdField" prefHeight="35.0" prefWidth="231.0"/>
+                                            </children>
+                                        </HBox>
+                                    </children>
+                                </VBox>
+                                <VBox prefHeight="188.0" prefWidth="100.0">
+                                    <children>
+                                        <HBox prefHeight="100.0" prefWidth="200.0"/>
+                                        <HBox prefHeight="100.0" prefWidth="200.0">
+                                            <children>
+                                                <Button mnemonicParsing="false" onAction="#closePosition"
+                                                        prefHeight="46.0" prefWidth="150.0" text="Pozíció zárása"/>
+                                            </children>
+                                        </HBox>
+                                        <HBox prefHeight="100.0" prefWidth="200.0"/>
+                                    </children>
+                                </VBox>
+                            </children>
+                        </HBox>
+                    </children>
+                </Pane>
                 <Pane layoutX="60.0" layoutY="60.0" prefHeight="425.0" prefWidth="690.0" visible="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
             </children>
         </AnchorPane>

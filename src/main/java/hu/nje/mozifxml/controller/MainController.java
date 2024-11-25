@@ -71,7 +71,7 @@ public class MainController implements Initializable {
     private ScrollPane menu1ScrollPane, menu2ScrollPane, openedPosition;
     @FXML
     private Pane deletePerformancePane, editMoviePanel, createMoviePanel, accountInfoPanel,
-            parallelPanel, mnbFilterPane, openPositionPane;
+            parallelPanel, mnbFilterPane, openPositionPane, closePane;
     @FXML
     private TableView<MoviePerformance> performanceTable_menu1, performanceTable_menu2;
     @FXML
@@ -90,10 +90,6 @@ public class MainController implements Initializable {
     private ComboBox<String> baseCurrencyComboBox, targetCurrencyComboBox, directionComboBox;
 
     @FXML
-    private TextField amountTextField;
-
-
-    @FXML
     private HBox currencyHBox;
 
     @FXML
@@ -103,7 +99,7 @@ public class MainController implements Initializable {
     private RadioButton likeSearch;
     @FXML
     private TextField movieTitleSearchText, editCinemaCapacity, editCinemaCity, editCinemaName,
-            newCinemaName, newCinemaCity, newCinemaCapacity, mnbFileName;
+            newCinemaName, newCinemaCity, newCinemaCapacity, mnbFileName, amountTextField, closeTrxIdField;
     @FXML
     private Button deletePerformanceBtn, editCinemaBtn, saveCinemaBtn;
 
@@ -153,7 +149,7 @@ public class MainController implements Initializable {
 
     private void hideAllPane() {
         List.of(deletePerformancePane, editMoviePanel, createMoviePanel, accountInfoPanel, parallelPanel,
-                        mnbFilterPane, openPositionPane)
+                        mnbFilterPane, openPositionPane, closePane)
                 .forEach(p -> p.setVisible(false));
         List.of(menu1ScrollPane, menu2ScrollPane, openedPosition).forEach(p -> p.setVisible(false));
     }
@@ -404,7 +400,18 @@ public class MainController implements Initializable {
 
     @FXML
     private void oandaClosing(ActionEvent actionEvent) {
+        this.changeView(closePane);
+    }
 
+    @FXML
+    private void closePosition(ActionEvent actionEvent) {
+        final String trxId = closeTrxIdField.getText();
+        if (isEmpty(trxId)) {
+            warningAlertPopup.apply("A zárni kívánt tranzakció azonosítójának megadása kötelező").showAndWait();
+            return;
+        }
+        alert("OK", "Pozicíó lezárva", () -> oandaService.close(trxId));
+        closeTrxIdField.setText("");
     }
 
     @FXML
@@ -424,19 +431,19 @@ public class MainController implements Initializable {
         final String amount = amountTextField.getText();
         final String direction = directionComboBox.getValue();
         if (isEmpty(baseCurrency)) {
-            warningAlertPopup.apply("Az alapdevizát ki kell választani!");
+            warningAlertPopup.apply("Az alapdevizát ki kell választani!").showAndWait();
             return;
         }
         if (isEmpty(targetCurrency)) {
-            warningAlertPopup.apply("A céldevizát ki kell választani!");
+            warningAlertPopup.apply("A céldevizát ki kell választani!").showAndWait();
             return;
         }
         if (isEmpty(amount) || !amount.matches("\\d+(\\.\\d+)?")) {
-            warningAlertPopup.apply("A mennyiség mező csak számokat tartalmazhat, és kötelező!");
+            warningAlertPopup.apply("A mennyiség mező csak számokat tartalmazhat, és kötelező!").showAndWait();
             return;
         }
         if (direction == null) {
-            warningAlertPopup.apply("Az irányt ki kell választani!");
+            warningAlertPopup.apply("Az irányt ki kell választani!").showAndWait();
             return;
         }
 
@@ -444,6 +451,11 @@ public class MainController implements Initializable {
         final Direction directionType = direction.equalsIgnoreCase(OandaService.DIRECTION_VETEL) ? Direction.LONG : Direction.SHORT;
 
         alert("OK", "Pozicíó megnyitva", () -> oandaService.open(instrument, Double.parseDouble(amount), directionType));
+
+        this.amountTextField.setText("");
+        List.of(
+                baseCurrencyComboBox, targetCurrencyComboBox, directionComboBox
+        ).forEach(f -> f.getSelectionModel().clearSelection());
     }
 
     @FXML
