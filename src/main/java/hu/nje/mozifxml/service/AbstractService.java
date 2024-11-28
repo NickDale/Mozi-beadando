@@ -1,10 +1,10 @@
 package hu.nje.mozifxml.service;
 
 import hu.nje.mozifxml.entities.AbstractEntity;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityManagerFactory;
-import jakarta.persistence.Persistence;
 
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
 import java.util.Collections;
 import java.util.List;
 
@@ -18,11 +18,16 @@ abstract class AbstractService {
     }
 
     protected <T extends AbstractEntity> List<T> findAll(final String query, final Class<T> resultClass) {
-        try (EntityManager entityManager = this.entityManagerFactory.createEntityManager()) {
+        EntityManager entityManager = this.entityManagerFactory.createEntityManager();
+        try {
             return entityManager.createNamedQuery(query, resultClass)
                     .getResultList();
         } catch (Exception ex) {
             ex.printStackTrace();
+        }finally {
+            if(entityManager != null) {
+                entityManager.clear();
+            }
         }
         return Collections.emptyList();
     }

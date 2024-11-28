@@ -6,10 +6,10 @@
         <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
 
         <properties>
-            <property name="jakarta.persistence.jdbc.url" value="jdbc:sqlite:adatok.db"/>
+            <property name="jakarta.persistence.jdbc.url" value="jdbc:sqlite:D:/GAMF/java/beadandok/eloadas/Mozi-beadando/adatok.db"/>
             <property name="jakarta.persistence.jdbc.driver" value="org.sqlite.JDBC"/>
 
-            <property name="hibernate.dialect" value="org.hibernate.community.dialect.SQLiteDialect"/>
+            <property name="hibernate.dialect" value="org.sqlite.hibernate.dialect.SQLiteDialect"/>
 
             <property name="hibernate.hbm2ddl.auto" value="update"/>
             <property name="hibernate.show_sql" value="true"/>

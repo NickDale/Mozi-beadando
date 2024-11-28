@@ -1,10 +1,10 @@
 package hu.nje.mozifxml.entities;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
 import org.hibernate.annotations.NamedQuery;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Table;
 import java.util.Objects;
 
 @Table(name = "mozi")
