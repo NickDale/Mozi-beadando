@@ -12,6 +12,7 @@ import com.oanda.v20.instrument.InstrumentCandlesResponse;
 import com.oanda.v20.order.MarketOrderRequest;
 import com.oanda.v20.order.OrderCreateRequest;
 import com.oanda.v20.order.OrderCreateResponse;
+import com.oanda.v20.pricing.ClientPrice;
 import com.oanda.v20.pricing.PricingGetResponse;
 import com.oanda.v20.primitives.DateTime;
 import com.oanda.v20.primitives.InstrumentName;
@@ -76,17 +77,14 @@ public class OandaService {
         }
     }
 
-    public void actualPrices(String... instruments) {
-//        this.actualPrices(List.of("EUR_USD", "USD_JPY", "GBP_USD", "USD_CHF"));
-        this.actualPrices(Arrays.asList(instruments));
+    public List<ClientPrice> actualPrices(String... instruments) {
+        return this.actualPrices(Arrays.asList(instruments));
     }
 
-    public void actualPrices(final Collection<String> instruments) {
+    public List<ClientPrice> actualPrices(final Collection<String> instruments) {
         try {
             PricingGetResponse pricingGetResponse = this.context.pricing.get(accountID, instruments);
-
-            pricingGetResponse.getPrices().forEach(clientPrice -> System.out.println(clientPrice.toString()));
-
+            return pricingGetResponse.getPrices();
         } catch (RequestException | ExecuteException ex) {
             throw new RuntimeException(ex);
         }

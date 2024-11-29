@@ -1,5 +1,6 @@
 package hu.nje.mozifxml.controller;
 
+import com.oanda.v20.pricing.ClientPrice;
 import com.oanda.v20.trade.Trade;
 import hu.nje.mozifxml.controller.model.MovieFilter;
 import hu.nje.mozifxml.controller.model.MoviePerformance;
@@ -33,6 +34,7 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.control.SingleSelectionModel;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputControl;
 import javafx.scene.layout.HBox;
@@ -79,7 +81,7 @@ public class MainController implements Initializable {
     private ScrollPane menu1ScrollPane, menu2ScrollPane, openedPosition;
     @FXML
     private Pane deletePerformancePane, editMoviePanel, createMoviePanel, accountInfoPanel,
-            parallelPanel, mnbFilterPane, openPositionPane, closePane, mnbChartPane;
+            parallelPanel, mnbFilterPane, openPositionPane, closePane, mnbChartPane, actPricePane;
     @FXML
     private TableView<MoviePerformance> performanceTable_menu1, performanceTable_menu2;
     @FXML
@@ -95,7 +97,8 @@ public class MainController implements Initializable {
     private ComboBox<Performance> performanceCombobox;
 
     @FXML
-    private ComboBox<String> baseCurrencyComboBox, targetCurrencyComboBox, directionComboBox;
+    private ComboBox<String> baseCurrencyComboBox, targetCurrencyComboBox, directionComboBox,
+            actPriceTargetCurrencyComboBox, actPriceBaseCurrencyComboBox;
 
     @FXML
     private HBox currencyHBox;
@@ -119,6 +122,8 @@ public class MainController implements Initializable {
 
     @FXML
     private TableColumn<Item, String> columnName, columnValue;
+    @FXML
+    private TextArea actPriceText;
 
     @FXML
     private LineChart mnbChart;
@@ -160,7 +165,7 @@ public class MainController implements Initializable {
 
     private void hideAllPane() {
         List.of(deletePerformancePane, editMoviePanel, createMoviePanel, accountInfoPanel, parallelPanel,
-                        mnbFilterPane, openPositionPane, closePane, mnbChartPane)
+                        mnbFilterPane, openPositionPane, closePane, mnbChartPane, actPricePane)
                 .forEach(p -> p.setVisible(false));
         List.of(menu1ScrollPane, menu2ScrollPane, openedPosition).forEach(p -> p.setVisible(false));
     }
@@ -389,10 +394,23 @@ public class MainController implements Initializable {
         accountTableView.setItems(FXCollections.observableArrayList(oandaService.accountInformation()));
     }
 
+    /**
+     * 4. feladat Forex menü - aktuális árak almenü
+     */
     @FXML
     private void oandaPrices(ActionEvent actionEvent) {
+        this.changeView(actPricePane);
+        this.actPriceBaseCurrencyComboBox.setItems(
+                FXCollections.observableArrayList("EUR")
+        );
+        this.actPriceTargetCurrencyComboBox.setItems(
+                FXCollections.observableArrayList(oandaService.defaultCurrencyCodes)
+        );
     }
 
+    /**
+     * 4. feladat Forex menü - historikus árak almenü
+     */
     @FXML
     private void oandaPriceHistory(ActionEvent actionEvent) {
     }
@@ -464,9 +482,13 @@ public class MainController implements Initializable {
         alert("OK", "Pozicíó megnyitva", () -> oandaService.open(instrument, Double.parseDouble(amount), directionType));
 
         this.amountTextField.setText("");
-        List.of(
+        clearComboBox(List.of(
                 baseCurrencyComboBox, targetCurrencyComboBox, directionComboBox
-        ).forEach(f -> f.getSelectionModel().clearSelection());
+        ));
+    }
+
+    private <T> void clearComboBox(List<ComboBox<T>> boxes) {
+        boxes.forEach(f -> f.getSelectionModel().clearSelection());
     }
 
     @FXML
@@ -539,5 +561,19 @@ public class MainController implements Initializable {
             }
             mnbChart.getData().add(sorozat);
         }
+    }
+
+    @FXML
+    private void showActualPrice(ActionEvent actionEvent) {
+        final String baseCurrency = actPriceBaseCurrencyComboBox.getValue();
+        final String targetCurrency = actPriceTargetCurrencyComboBox.getValue();
+
+        final List<ClientPrice> clientPrices = this.oandaService.actualPrices(baseCurrency + "_" + targetCurrency);
+
+        for (ClientPrice price : clientPrices) {
+            actPriceText.setText(price.getType() + "\n" + price.getInstrument() + "\n" +
+                    "closeoutBid = " + price.getCloseoutBid() + "\tcloseoutAsk=" + price.getCloseoutAsk());
+        }
+        this.clearComboBox(List.of(actPriceBaseCurrencyComboBox, actPriceTargetCurrencyComboBox));
     }
 }
