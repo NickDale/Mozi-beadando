@@ -8,6 +8,7 @@ import hu.nje.mozifxml.entities.Performance;
 import hu.nje.mozifxml.service.CinemaService;
 import hu.nje.mozifxml.service.MNBService;
 import hu.nje.mozifxml.service.PerformanceService;
+import hu.nje.mozifxml.service.mnb.model.Day;
 import hu.nje.mozifxml.service.oanda.Direction;
 import hu.nje.mozifxml.service.oanda.Item;
 import hu.nje.mozifxml.service.oanda.OandaService;
@@ -19,6 +20,8 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.chart.LineChart;
+import javafx.scene.chart.XYChart;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
@@ -38,9 +41,14 @@ import javafx.scene.layout.Region;
 import org.controlsfx.control.CheckComboBox;
 
 import java.net.URL;
+import java.text.ParseException;
+import java.time.LocalDate;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.ResourceBundle;
+import java.util.TreeMap;
 import java.util.UUID;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -71,7 +79,7 @@ public class MainController implements Initializable {
     private ScrollPane menu1ScrollPane, menu2ScrollPane, openedPosition;
     @FXML
     private Pane deletePerformancePane, editMoviePanel, createMoviePanel, accountInfoPanel,
-            parallelPanel, mnbFilterPane, openPositionPane, closePane;
+            parallelPanel, mnbFilterPane, openPositionPane, closePane, mnbChartPane;
     @FXML
     private TableView<MoviePerformance> performanceTable_menu1, performanceTable_menu2;
     @FXML
@@ -112,6 +120,9 @@ public class MainController implements Initializable {
     @FXML
     private TableColumn<Item, String> columnName, columnValue;
 
+    @FXML
+    private LineChart mnbChart;
+
     private CheckComboBox<String> checkComboBox;
 
     @Override
@@ -149,7 +160,7 @@ public class MainController implements Initializable {
 
     private void hideAllPane() {
         List.of(deletePerformancePane, editMoviePanel, createMoviePanel, accountInfoPanel, parallelPanel,
-                        mnbFilterPane, openPositionPane, closePane)
+                        mnbFilterPane, openPositionPane, closePane, mnbChartPane)
                 .forEach(p -> p.setVisible(false));
         List.of(menu1ScrollPane, menu2ScrollPane, openedPosition).forEach(p -> p.setVisible(false));
     }
@@ -500,4 +511,33 @@ public class MainController implements Initializable {
                 .forEach(tf -> tf.textProperty().addListener(listener));
     }
 
+    @FXML
+    private void showMnbChart(ActionEvent actionEvent) throws ParseException {
+        this.changeView(this.mnbChartPane);
+        mnbChart.setTitle("Árfolyamok");
+
+        final List<Day> mnbExchangeRates = mnbService.mnbExchangeRates(
+                Arrays.asList("EUR", "USD", "CHF", "AUD", "CAD", "BGN")
+        );
+
+        final Map<String, Map<LocalDate, Double>> result = new HashMap<>();
+        for (var day : mnbExchangeRates) {
+            for (var rate : day.getRates()) {
+                String currency = rate.getCurrency().toUpperCase();
+                double value = Double.parseDouble(rate.getValue().replace(",", "."));
+
+                result.computeIfAbsent(currency, k -> new TreeMap<>()).put(LocalDate.parse(day.getDate()), value);
+            }
+        }
+
+        for (var entry : result.entrySet()) {
+            String currency = entry.getKey();
+            var sorozat = new XYChart.Series<>();
+            sorozat.setName(currency);
+            for (var rateEntry : entry.getValue().entrySet()) {
+                sorozat.getData().add(new XYChart.Data<>(rateEntry.getKey().getDayOfMonth(), rateEntry.getValue()));
+            }
+            mnbChart.getData().add(sorozat);
+        }
+    }
 }

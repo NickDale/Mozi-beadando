@@ -16,6 +16,7 @@ import java.util.Objects;
 import java.util.function.Function;
 
 import static hu.nje.mozifxml.util.Constant.LIKE_PER_CENT;
+import static hu.nje.mozifxml.util.Constant.isNotEmpty;
 
 public class PerformanceService extends AbstractService {
 
@@ -58,7 +59,7 @@ public class PerformanceService extends AbstractService {
             final Root<Performance> root = cq.from(Performance.class);
             final List<Predicate> predicates = new ArrayList<>();
 
-            if (Objects.nonNull(movieFilter.getMovieName()) && !movieFilter.getMovieName().trim().isEmpty()) {
+            if (isNotEmpty(movieFilter.getMovieName())) {
                 predicates.add(
                         this.createMovieTitleSearchPredicate(cb, root, movieFilter)
                 );

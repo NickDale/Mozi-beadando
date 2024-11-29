@@ -1,6 +1,8 @@
 package hu.nje.mozifxml.service;
 
 import hu.nje.mozifxml.service.mnb.NMBDSoapClient;
+import hu.nje.mozifxml.service.mnb.model.Day;
+import hu.nje.mozifxml.service.mnb.model.MNBExchangeRates;
 import hu.nje.mozifxml.util.Constant;
 import javafx.stage.FileChooser;
 import javafx.stage.Window;
@@ -19,6 +21,7 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.BiFunction;
@@ -47,6 +50,23 @@ public class MNBService {
 
     public List<String> currencies() {
         return soapClient.getCurrencies();
+    }
+
+    public List<Day> mnbExchangeRates(final Collection<String> currencies) {
+        return this.mnbExchangeRates(null, null, currencies);
+    }
+
+    public List<Day> mnbExchangeRates(final LocalDate startDate, final LocalDate endDate, final Collection<String> currencies) {
+        MNBExchangeRates allExchangeRates = soapClient.getAllExchangeRates(null, null, currencies);
+        return allExchangeRates.getDays().stream()
+                .filter(
+                        day -> !LocalDate.parse(day.getDate(), DateTimeFormatter.ISO_DATE).isBefore(
+                                ofNullable(startDate).orElse(LocalDate.now().minusMonths(1))
+                        )
+                                && !LocalDate.parse(day.getDate(), DateTimeFormatter.ISO_DATE).isAfter(
+                                ofNullable(endDate).orElse(LocalDate.now())
+                        )
+                ).toList();
     }
 
     public void downloadAll(final Window window) {

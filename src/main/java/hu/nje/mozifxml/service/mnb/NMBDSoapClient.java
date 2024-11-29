@@ -6,6 +6,7 @@ import hu.nje.mnb.generated.MNBArfolyamServiceSoapGetCurrentExchangeRatesStringF
 import hu.nje.mnb.generated.MNBArfolyamServiceSoapGetExchangeRatesStringFaultFaultMessage;
 import hu.nje.mnb.generated.MNBArfolyamServiceSoapImpl;
 import hu.nje.mozifxml.service.mnb.model.MNBCurrencies;
+import hu.nje.mozifxml.service.mnb.model.MNBExchangeRates;
 import hu.nje.mozifxml.util.Constant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,6 +44,16 @@ public class NMBDSoapClient {
         } catch (MNBArfolyamServiceSoapGetCurrenciesStringFaultFaultMessage ex) {
             throw new RuntimeException(ex);
         }
+    }
+
+    public MNBExchangeRates getAllExchangeRates(final LocalDate startDate,
+                                      final LocalDate endDate,
+                                      final Collection<String> currencies) {
+       final String allExchangeRatesAsStringByFilter = this.getAllExchangeRatesAsStringByFilter(startDate, endDate, currencies);
+        return this.unmarshal(
+                MNBExchangeRates.class,
+                allExchangeRatesAsStringByFilter
+        );
     }
 
     public String getAllExchangeRatesAsString() {
