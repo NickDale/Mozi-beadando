@@ -2,16 +2,13 @@ package hu.nje.mozifxml.service;
 
 import hu.nje.mozifxml.controller.model.MovieFilter;
 import hu.nje.mozifxml.controller.model.MoviePerformance;
-import hu.nje.mozifxml.entities.Cinema_;
-import hu.nje.mozifxml.entities.Movie_;
 import hu.nje.mozifxml.entities.Performance;
-import hu.nje.mozifxml.entities.Performance_;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.CriteriaQuery;
-import jakarta.persistence.criteria.Predicate;
-import jakarta.persistence.criteria.Root;
 
+import javax.persistence.EntityManager;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -54,7 +51,8 @@ public class PerformanceService extends AbstractService {
     }
 
     private List<Performance> listPerformancesByFilter2(MovieFilter movieFilter) {
-        try (EntityManager entityManager = entityManagerFactory.createEntityManager()) {
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
+        try {
             final CriteriaBuilder cb = entityManager.getCriteriaBuilder();
             final CriteriaQuery<Performance> cq = cb.createQuery(Performance.class);
             final Root<Performance> root = cq.from(Performance.class);
@@ -68,21 +66,25 @@ public class PerformanceService extends AbstractService {
 
             if (Objects.nonNull(movieFilter.getCinemaId())) {
                 predicates.add(
-                        cb.equal(root.get(Performance_.CINEMA).get(Cinema_.ID), movieFilter.getCinemaId())
+                        cb.equal(root.get("cinema").get("id"), movieFilter.getCinemaId())
                 );
             }
 
             cq.where(predicates.toArray(Predicate[]::new));
             cq.orderBy(
                     cb.asc(
-                            root.get(Performance_.MOVIE).get(Movie_.TITLE)
+                            root.get("movie").get("title")
                     ),
-                    cb.desc(root.get(Performance_.DATE))
+                    cb.desc(root.get("date"))
             );
 
             return entityManager.createQuery(cq).getResultList();
         } catch (Exception ex) {
             ex.printStackTrace();
+        }finally {
+            if (entityManager !=null){
+                entityManager.close();
+            }
         }
         return Collections.emptyList();
     }
@@ -94,26 +96,26 @@ public class PerformanceService extends AbstractService {
             if (movieFilter.isCaseInsensitiveSearch()) {
                 return cb.like(
                         cb.lower(
-                                root.get(Performance_.MOVIE).get(Movie_.TITLE)
+                                root.get("movie").get("title")
                         ),
                         LIKE_PER_CENT + movieFilter.getMovieName().toLowerCase() + LIKE_PER_CENT
                 );
             }
             return cb.like(
-                    root.get(Performance_.MOVIE).get(Movie_.TITLE),
+                    root.get("movie").get("title"),
                     LIKE_PER_CENT + movieFilter.getMovieName() + LIKE_PER_CENT
             );
         }
         if (movieFilter.isCaseInsensitiveSearch()) {
             return cb.equal(
                     cb.lower(
-                            root.get(Performance_.MOVIE).get(Movie_.TITLE)
+                            root.get("movie").get("title")
                     ),
                     movieFilter.getMovieName().toLowerCase()
             );
         }
         return cb.equal(
-                root.get(Performance_.MOVIE).get(Movie_.TITLE),
+                root.get("movie").get("title"),
                 movieFilter.getMovieName()
         );
     }

@@ -1,22 +1,18 @@
 package hu.nje.mozifxml.service.mnb;
 
-import hu.mnb.webservices.GetCurrenciesRequestBody;
-import hu.mnb.webservices.GetCurrentExchangeRatesRequestBody;
-import hu.mnb.webservices.GetExchangeRatesRequestBody;
-import hu.mnb.webservices.MNBArfolyamServiceSoap;
-import hu.mnb.webservices.MNBArfolyamServiceSoapGetCurrenciesStringFaultFaultMessage;
-import hu.mnb.webservices.MNBArfolyamServiceSoapGetCurrentExchangeRatesStringFaultFaultMessage;
-import hu.mnb.webservices.MNBArfolyamServiceSoapGetExchangeRatesStringFaultFaultMessage;
-import hu.mnb.webservices.ObjectFactory;
+import hu.nje.mnb.generated.MNBArfolyamServiceSoap;
+import hu.nje.mnb.generated.MNBArfolyamServiceSoapGetCurrenciesStringFaultFaultMessage;
+import hu.nje.mnb.generated.MNBArfolyamServiceSoapGetCurrentExchangeRatesStringFaultFaultMessage;
+import hu.nje.mnb.generated.MNBArfolyamServiceSoapGetExchangeRatesStringFaultFaultMessage;
+import hu.nje.mnb.generated.MNBArfolyamServiceSoapImpl;
 import hu.nje.mozifxml.service.mnb.model.MNBCurrencies;
 import hu.nje.mozifxml.util.Constant;
-import jakarta.xml.bind.JAXBContext;
-import jakarta.xml.bind.JAXBException;
-import jakarta.xml.bind.Unmarshaller;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tempuri.MNBArfolyamServiceSoapImpl;
 
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Unmarshaller;
 import java.io.StringReader;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -29,13 +25,11 @@ import static java.util.Optional.ofNullable;
 public class NMBDSoapClient {
     private static final Logger logger = LoggerFactory.getLogger(NMBDSoapClient.class);
 
-    private final ObjectFactory objectFactory;
     private final MNBArfolyamServiceSoap service;
 
     private final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd").withZone(ZoneId.systemDefault());
 
     public NMBDSoapClient() {
-        objectFactory = new ObjectFactory();
         service = new MNBArfolyamServiceSoapImpl().getCustomBindingMNBArfolyamServiceSoap();
     }
 
@@ -43,7 +37,7 @@ public class NMBDSoapClient {
         try {
             final MNBCurrencies mnbCurrencies = this.unmarshal(
                     MNBCurrencies.class,
-                    service.getCurrencies(new GetCurrenciesRequestBody()).getGetCurrenciesResult().getValue()
+                    service.getCurrencies()
             );
             return mnbCurrencies.getCurrencies().getCurr();
         } catch (MNBArfolyamServiceSoapGetCurrenciesStringFaultFaultMessage ex) {
@@ -62,20 +56,15 @@ public class NMBDSoapClient {
             final var today = LocalDate.now();
             final LocalDate start = ofNullable(startDate).orElse(LocalDate.ofYearDay(today.getYear(), 1));
             final LocalDate end = ofNullable(endDate).orElse(LocalDate.of(today.getYear(), 12, 31));
-            final var exchangeRatesRequestBody = new GetExchangeRatesRequestBody();
-            exchangeRatesRequestBody.setCurrencyNames(
-                    objectFactory.createGetExchangeRatesRequestBodyCurrencyNames(
-                            String.join(",", ofNullable(currencies).filter(Constant::isNotEmpty).orElse(this.getCurrencies())
-                            )
-                    )
+
+            final String currencyNames = String.join(",",
+                    ofNullable(currencies).filter(Constant::isNotEmpty).orElse(this.getCurrencies())
             );
-            exchangeRatesRequestBody.setStartDate(
-                    objectFactory.createGetExchangeRatesRequestBodyStartDate(start.format(dateFormatter))
+            return service.getExchangeRates(
+                    start.format(dateFormatter),
+                    end.format(dateFormatter),
+                    currencyNames
             );
-            exchangeRatesRequestBody.setStartDate(
-                    objectFactory.createGetExchangeRatesRequestBodyEndDate(end.format(dateFormatter))
-            );
-            return service.getExchangeRates(exchangeRatesRequestBody).getGetExchangeRatesResult().getValue();
         } catch (MNBArfolyamServiceSoapGetExchangeRatesStringFaultFaultMessage ex) {
             throw new RuntimeException(ex);
         }
@@ -83,8 +72,7 @@ public class NMBDSoapClient {
 
     public String getCurrentExchangeRatesAsXML() {
         try {
-            return service.getCurrentExchangeRates(new GetCurrentExchangeRatesRequestBody())
-                    .getGetCurrentExchangeRatesResult().getValue();
+            return service.getCurrentExchangeRates();
         } catch (MNBArfolyamServiceSoapGetCurrentExchangeRatesStringFaultFaultMessage e) {
             throw new RuntimeException(e);
         }

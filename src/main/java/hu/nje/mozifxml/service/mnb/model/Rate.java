@@ -1,7 +1,7 @@
 package hu.nje.mozifxml.service.mnb.model;
 
-import jakarta.xml.bind.annotation.XmlAttribute;
-import jakarta.xml.bind.annotation.XmlValue;
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlValue;
 
 public class Rate {
 
